@@ -1,14 +1,25 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, X, Heart } from "lucide-react";
+import { Search, Menu, X, Heart, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import logoImage from "@assets/generated_images/ToolForge_AI_logo_icon_3e9816aa.png";
+import { useAuth } from "@/lib/authUtils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, isLoading } = useAuth();
 
   const navigation = [
     { name: "Tools", href: "/tools" },
@@ -70,6 +81,48 @@ export function Header() {
               </div>
             </form>
 
+            {!isLoading && (
+              user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-2" data-testid="button-user-menu">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.profileImage} alt={user.name} />
+                        <AvatarFallback>
+                          {user.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden sm:inline">{user.name}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/favorites" data-testid="link-favorites-menu">
+                        <Heart className="mr-2 h-4 w-4" />
+                        <span>Favorites</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <a href="/api/logout" data-testid="button-logout">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button asChild data-testid="button-login">
+                  <a href="/api/login">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Log in
+                  </a>
+                </Button>
+              )
+            )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -97,6 +150,32 @@ export function Header() {
                   </Button>
                 </Link>
               ))}
+              
+              {!isLoading && (
+                user ? (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a href="/api/logout" data-testid="button-logout-mobile">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Log out
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
+                    <a href="/api/login" data-testid="button-login-mobile">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Log in
+                    </a>
+                  </Button>
+                )
+              )}
             </nav>
             <form onSubmit={handleSearch} className="mt-4">
               <div className="relative">
