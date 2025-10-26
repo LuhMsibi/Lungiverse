@@ -18,10 +18,10 @@ export function ChatBot() {
 
   const chatMutation = useMutation({
     mutationFn: async (data: ChatRequest) => {
-      const response = await apiRequest<ChatResponse>("POST", "/api/chat", data);
-      return response;
+      const response = await apiRequest("/api/chat", "POST", data);
+      return response as ChatResponse;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: ChatResponse) => {
       const assistantMessage: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
@@ -70,11 +70,11 @@ export function ChatBot() {
       {!isOpen && (
         <Button
           size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg animate-pulse-glow z-50"
+          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:shadow-primary/50 animate-pulse-glow z-50 bg-gradient-to-br from-primary to-chart-2"
           onClick={() => setIsOpen(true)}
           data-testid="button-chatbot-open"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-7 w-7 text-white" />
         </Button>
       )}
 
