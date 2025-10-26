@@ -78,11 +78,7 @@ export function FavoriteButton({ toolId, variant = "ghost", showText = false }: 
     e.stopPropagation();
     
     if (!user) {
-      toast({
-        title: "Login required",
-        description: "Please log in to save favorites",
-        variant: "destructive",
-      });
+      window.location.href = "/api/login";
       return;
     }
     
