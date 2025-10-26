@@ -91,6 +91,44 @@ export class DBStorage {
       .where(eq(tools.id, toolId));
   }
 
+  async createTool(toolData: {
+    name: string;
+    description: string;
+    category: string;
+    features: string[];
+    isPaid: boolean;
+    requiresAPI: boolean;
+    url?: string;
+  }): Promise<Tool> {
+    const [tool] = await db
+      .insert(tools)
+      .values(toolData)
+      .returning();
+    return tool;
+  }
+
+  async createArticle(articleData: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    coverImage: string;
+    category: string;
+    authorName: string;
+    authorAvatar?: string;
+    readTime: string;
+    tags: string[];
+  }): Promise<Article> {
+    const [article] = await db
+      .insert(articles)
+      .values({
+        ...articleData,
+        publishedAt: new Date(),
+      })
+      .returning();
+    return article;
+  }
+
   // Favorites operations
   async addFavorite(userId: string, toolId: number): Promise<Favorite> {
     const [favorite] = await db

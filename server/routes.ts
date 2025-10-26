@@ -484,6 +484,60 @@ Keep responses concise and actionable.`,
     }
   });
 
+  // Admin endpoints
+  app.post("/api/admin/tools", isAuthenticated, async (req: any, res) => {
+    try {
+      const { name, description, category, features, isPaid, requiresAPI, url } = req.body;
+      
+      if (!name || !description || !category || !features) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const tool = await storage.createTool({
+        name,
+        description,
+        category,
+        features,
+        isPaid: isPaid || false,
+        requiresAPI: requiresAPI || false,
+        url,
+      });
+
+      res.json(transformTool(tool));
+    } catch (error) {
+      console.error("Error creating tool:", error);
+      res.status(500).json({ error: "Failed to create tool" });
+    }
+  });
+
+  app.post("/api/admin/articles", isAuthenticated, async (req: any, res) => {
+    try {
+      const { title, slug, excerpt, content, coverImage, category, authorName, authorAvatar, readTime, tags } = req.body;
+      
+      if (!title || !slug || !excerpt || !content || !category || !authorName || !readTime) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const article = await storage.createArticle({
+        title,
+        slug,
+        excerpt,
+        content,
+        coverImage: coverImage || "",
+        category,
+        authorName,
+        authorAvatar,
+        readTime,
+        tags: tags || [],
+      });
+
+      res.json(transformArticle(article));
+    } catch (error) {
+      console.error("Error creating article:", error);
+      res.status(500).json({ error: "Failed to create article" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
