@@ -5,6 +5,7 @@ import {
   users, 
   favorites, 
   searchHistory,
+  analyticsEvents,
   type Tool, 
   type Article, 
   type User, 
@@ -12,9 +13,11 @@ import {
   type Favorite,
   type InsertFavorite,
   type SearchHistory,
-  type InsertSearchHistory
+  type InsertSearchHistory,
+  type AnalyticsEvent,
+  type InsertAnalyticsEvent
 } from "@shared/schema";
-import { sql, ilike, or, eq, desc, and } from "drizzle-orm";
+import { sql, ilike, or, eq, desc, and, count, gt } from "drizzle-orm";
 
 export class DBStorage {
   // User operations (for Replit Auth)
@@ -157,6 +160,91 @@ export class DBStorage {
     await db
       .delete(searchHistory)
       .where(eq(searchHistory.userId, userId));
+  }
+
+  // Analytics operations
+  async trackEvent(event: InsertAnalyticsEvent): Promise<void> {
+    await db.insert(analyticsEvents).values(event);
+  }
+
+  async getPopularTools(limit: number = 10): Promise<Tool[]> {
+    return await db
+      .select()
+      .from(tools)
+      .orderBy(desc(tools.viewCount), desc(tools.usageCount))
+      .limit(limit);
+  }
+
+  async getTrendingTools(limit: number = 10, daysSince: number = 7): Promise<Tool[]> {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - daysSince);
+    
+    const recentViews = await db
+      .select({
+        toolId: analyticsEvents.toolId,
+        eventCount: count(analyticsEvents.id).as('count'),
+      })
+      .from(analyticsEvents)
+      .where(
+        and(
+          eq(analyticsEvents.eventType, 'view'),
+          gt(analyticsEvents.createdAt, sinceDate)
+        )
+      )
+      .groupBy(analyticsEvents.toolId)
+      .orderBy(desc(sql`count`))
+      .limit(limit);
+
+    const toolIds = recentViews.map(rv => rv.toolId);
+    if (toolIds.length === 0) {
+      return await this.getPopularTools(limit);
+    }
+
+    const trendingTools = await db
+      .select()
+      .from(tools)
+      .where(sql`${tools.id} IN (${sql.join(toolIds, sql`, `)})`);
+    
+    return toolIds.map(id => trendingTools.find(t => t.id === id)).filter(Boolean) as Tool[];
+  }
+
+  async getToolAnalytics(toolId: number): Promise<{
+    viewCount: number;
+    usageCount: number;
+    recentViews: number;
+    recentClicks: number;
+  }> {
+    const tool = await this.getToolById(toolId);
+    if (!tool) {
+      throw new Error('Tool not found');
+    }
+
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - 7);
+
+    const recentEvents = await db
+      .select({
+        eventType: analyticsEvents.eventType,
+        eventCount: count(analyticsEvents.id).as('count'),
+      })
+      .from(analyticsEvents)
+      .where(
+        and(
+          eq(analyticsEvents.toolId, toolId),
+          gt(analyticsEvents.createdAt, sinceDate)
+        )
+      )
+      .groupBy(analyticsEvents.eventType);
+
+    const recentViews = recentEvents.find(e => e.eventType === 'view')?.eventCount || 0;
+    const recentClicks = recentEvents.find(e => e.eventType === 'click')?.eventCount || 0;
+
+    return {
+      viewCount: tool.viewCount,
+      usageCount: tool.usageCount,
+      recentViews: Number(recentViews),
+      recentClicks: Number(recentClicks),
+    };
   }
 }
 

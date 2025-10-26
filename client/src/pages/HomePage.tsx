@@ -18,6 +18,14 @@ export default function HomePage() {
     queryKey: ["/api/tools"],
   });
 
+  const { data: popularTools = [], isLoading: popularLoading } = useQuery<AITool[]>({
+    queryKey: ["/api/analytics/popular"],
+  });
+
+  const { data: trendingTools = [], isLoading: trendingLoading } = useQuery<AITool[]>({
+    queryKey: ["/api/analytics/trending"],
+  });
+
   const { data: articles = [], isLoading: articlesLoading } = useQuery<Article[]>({
     queryKey: ["/api/articles"],
   });
@@ -167,6 +175,74 @@ export default function HomePage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredTools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Most Popular Tools Section */}
+      <section className="py-24 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Most Popular Tools</h2>
+              <p className="text-muted-foreground">Top tools based on views and usage</p>
+            </div>
+            <Link href="/tools">
+              <Button variant="outline" data-testid="button-view-popular">
+                View All
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          {popularLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="h-64 animate-pulse">
+                  <div className="h-full bg-muted" />
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {popularTools.slice(0, 6).map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Trending Tools Section */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Trending This Week</h2>
+              <p className="text-muted-foreground">Most viewed tools in the past 7 days</p>
+            </div>
+            <Link href="/tools">
+              <Button variant="outline" data-testid="button-view-trending">
+                View All
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          {trendingLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="h-64 animate-pulse">
+                  <div className="h-full bg-muted" />
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {trendingTools.slice(0, 6).map((tool) => (
                 <ToolCard key={tool.id} tool={tool} />
               ))}
             </div>

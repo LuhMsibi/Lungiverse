@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Check } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useRef, useState } from "react";
 import type { AITool } from "@shared/schema";
 
 interface ToolCardProps {
@@ -11,8 +14,54 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ tool, featured = false }: ToolCardProps) {
+  const { user } = useAuth();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [viewTracked, setViewTracked] = useState(false);
+
+  useEffect(() => {
+    if (!cardRef.current || viewTracked) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !viewTracked) {
+            setViewTracked(true);
+            apiRequest("/api/analytics/track", "POST", {
+              toolId: parseInt(tool.id),
+              eventType: "view",
+              userId: user?.id || null,
+            }).catch(() => {});
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(cardRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [tool.id, user?.id, viewTracked]);
+
+  const trackClick = () => {
+    apiRequest("/api/analytics/track", "POST", {
+      toolId: parseInt(tool.id),
+      eventType: "click",
+      userId: user?.id || null,
+    }).catch(() => {});
+  };
+
+  const handleTryNow = () => {
+    trackClick();
+    if (tool.url) {
+      window.open(tool.url, '_blank');
+    }
+  };
+
   return (
     <Card
+      ref={cardRef}
       className={`group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
         featured ? "md:col-span-2" : ""
       }`}
@@ -70,7 +119,7 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
           <FavoriteButton toolId={tool.id} variant="ghost" />
           <Button
             size="sm"
-            onClick={() => tool.url && window.open(tool.url, '_blank')}
+            onClick={handleTryNow}
             disabled={!tool.url}
             data-testid={`button-try-${tool.id}`}
           >

@@ -221,6 +221,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics endpoints
+  app.post("/api/analytics/track", async (req, res) => {
+    try {
+      const { toolId, eventType, userId, metadata } = req.body;
+      
+      if (!toolId || !eventType) {
+        return res.status(400).json({ error: "toolId and eventType are required" });
+      }
+
+      await storage.trackEvent({
+        toolId,
+        eventType,
+        userId: userId || null,
+        metadata: metadata || null,
+      });
+
+      if (eventType === 'view') {
+        await storage.incrementToolViewCount(toolId);
+      } else if (eventType === 'click') {
+        await storage.incrementToolUsageCount(toolId);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking event:", error);
+      res.status(500).json({ error: "Failed to track event" });
+    }
+  });
+
+  app.get("/api/analytics/popular", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const tools = await storage.getPopularTools(limit);
+      res.json(tools.map(transformTool));
+    } catch (error) {
+      console.error("Error fetching popular tools:", error);
+      res.status(500).json({ error: "Failed to fetch popular tools" });
+    }
+  });
+
+  app.get("/api/analytics/trending", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const daysSince = parseInt(req.query.daysSince as string) || 7;
+      const tools = await storage.getTrendingTools(limit, daysSince);
+      res.json(tools.map(transformTool));
+    } catch (error) {
+      console.error("Error fetching trending tools:", error);
+      res.status(500).json({ error: "Failed to fetch trending tools" });
+    }
+  });
+
+  app.get("/api/analytics/tool/:toolId", async (req, res) => {
+    try {
+      const toolId = parseInt(req.params.toolId);
+      if (isNaN(toolId)) {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      const analytics = await storage.getToolAnalytics(toolId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching tool analytics:", error);
+      res.status(500).json({ error: "Failed to fetch tool analytics" });
+    }
+  });
+
   // Chatbot endpoint
   app.post("/api/chat", async (req, res) => {
     try {
