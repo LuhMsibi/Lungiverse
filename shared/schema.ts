@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, boolean, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, boolean, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -18,16 +18,31 @@ export type ToolCategory = typeof toolCategories[number];
 
 // ============ DATABASE TABLES ============
 
-// Users Table
+// Session storage table (for Replit Auth)
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => ({
+    expireIdx: index("IDX_session_expire").on(table.expire),
+  })
+);
+
+// Users Table (keeping serial ID for compatibility)
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: varchar("username", { length: 50 }).notNull().unique(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  id: varchar("id").primaryKey(),
+  email: varchar("email", { length: 255 }).unique(),
+  firstName: varchar("first_name", { length: 255 }),
+  lastName: varchar("last_name", { length: 255 }),
+  profileImageUrl: varchar("profile_image_url", { length: 500 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
 // Tools Table
@@ -87,7 +102,7 @@ export type Article = typeof articles.$inferSelect;
 // Favorites Table
 export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   toolId: integer("tool_id").notNull().references(() => tools.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
@@ -105,7 +120,7 @@ export type Favorite = typeof favorites.$inferSelect;
 // Reviews Table
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   toolId: integer("tool_id").notNull().references(() => tools.id),
   rating: integer("rating").notNull(),
   comment: text("comment"),
@@ -127,7 +142,7 @@ export type Review = typeof reviews.$inferSelect;
 // Search History Table
 export const searchHistory = pgTable("search_history", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   query: varchar("query", { length: 500 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -144,7 +159,7 @@ export const analyticsEvents = pgTable("analytics_events", {
   id: serial("id").primaryKey(),
   toolId: integer("tool_id").notNull().references(() => tools.id),
   eventType: varchar("event_type", { length: 50 }).notNull(), // 'view', 'click', 'search'
-  userId: integer("user_id").references(() => users.id),
+  userId: varchar("user_id").references(() => users.id),
   metadata: jsonb("metadata").$type<Record<string, any>>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -159,7 +174,7 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 // Tool Submissions Table (user-submitted tools pending approval)
 export const toolSubmissions = pgTable("tool_submissions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
   category: varchar("category", { length: 50 }).notNull(),

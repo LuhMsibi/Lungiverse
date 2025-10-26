@@ -1,8 +1,30 @@
 import { db } from "./db";
-import { tools, articles, type Tool, type Article } from "@shared/schema";
+import { tools, articles, users, type Tool, type Article, type User, type UpsertUser } from "@shared/schema";
 import { sql, ilike, or, eq, desc } from "drizzle-orm";
 
 export class DBStorage {
+  // User operations (for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+  
+  // Tool operations
   async getAllTools(): Promise<Tool[]> {
     return await db.select().from(tools).orderBy(desc(tools.usageCount));
   }
