@@ -1,7 +1,7 @@
-import type { Express } from "express";
+import type { Express} from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { chatRequestSchema } from "@shared/schema";
+import { storage } from "./dbStorage";
+import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
 import OpenAI from "openai";
 
 // Using Replit's AI Integrations service for OpenAI - reference: blueprint:javascript_openai_ai_integrations
@@ -11,12 +11,47 @@ const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
 });
 
+// Transform DB Article to frontend-expected format
+function transformArticle(article: Article): ArticleLegacy {
+  return {
+    id: article.id.toString(),
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    content: article.content,
+    coverImage: article.coverImage,
+    category: article.category,
+    author: {
+      name: article.authorName,
+      avatar: article.authorAvatar || undefined,
+    },
+    publishedAt: article.publishedAt.toISOString(),
+    readTime: article.readTime,
+    tags: article.tags,
+  };
+}
+
+// Transform DB Tool to frontend-expected format
+function transformTool(tool: Tool): AITool {
+  return {
+    id: tool.id.toString(),
+    name: tool.name,
+    description: tool.description,
+    category: tool.category as any,
+    features: tool.features,
+    isPaid: tool.isPaid,
+    requiresAPI: tool.requiresAPI,
+    url: tool.url || undefined,
+    usageCount: tool.usageCount,
+  };
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all AI tools
   app.get("/api/tools", async (req, res) => {
     try {
       const tools = await storage.getAllTools();
-      res.json(tools);
+      res.json(tools.map(transformTool));
     } catch (error) {
       console.error("Error fetching tools:", error);
       res.status(500).json({ error: "Failed to fetch tools" });
@@ -31,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Search query required" });
       }
       const tools = await storage.searchTools(query);
-      res.json(tools);
+      res.json(tools.map(transformTool));
     } catch (error) {
       console.error("Error searching tools:", error);
       res.status(500).json({ error: "Failed to search tools" });
@@ -42,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/articles", async (req, res) => {
     try {
       const articles = await storage.getAllArticles();
-      res.json(articles);
+      res.json(articles.map(transformArticle));
     } catch (error) {
       console.error("Error fetching articles:", error);
       res.status(500).json({ error: "Failed to fetch articles" });
@@ -56,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!article) {
         return res.status(404).json({ error: "Article not found" });
       }
-      res.json(article);
+      res.json(transformArticle(article));
     } catch (error) {
       console.error("Error fetching article:", error);
       res.status(500).json({ error: "Failed to fetch article" });

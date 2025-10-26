@@ -47,7 +47,8 @@ Preferred communication style: Simple, everyday language.
 **Technology Stack:**
 - Node.js with Express.js
 - TypeScript with ESM modules
-- In-memory data storage (no database currently connected)
+- PostgreSQL database with Drizzle ORM
+- Neon Serverless PostgreSQL driver
 - OpenAI integration via Replit AI Integrations service
 
 **API Design:**
@@ -57,15 +58,17 @@ Preferred communication style: Simple, everyday language.
 - Chat endpoint for AI assistant functionality
 
 **Key Endpoints:**
-- `GET /api/tools` - Retrieve all AI tools
+- `GET /api/tools` - Retrieve all AI tools from database
 - `GET /api/tools/search?q=query` - Search tools by query string
-- `GET /api/articles` - Retrieve all articles
+- `GET /api/articles` - Retrieve all articles from database
+- `GET /api/articles/:slug` - Get article by slug
 - `POST /api/chat` - AI chatbot conversation endpoint
 
 **Data Storage Strategy:**
-- Currently using in-memory storage with `MemStorage` class implementing `IStorage` interface
-- Data initialized on server startup with predefined tools and articles
-- Abstracted storage interface allows future database migration without API changes
+- PostgreSQL database with Drizzle ORM for type-safe database operations
+- `DBStorage` class in `server/dbStorage.ts` implements all data access methods
+- Database seeded with 26 AI tools and 5 SEO-optimized articles
+- Transformation layer converts DB records to frontend-expected format
 - Image assets referenced via paths to `attached_assets` directory
 
 **Server Configuration:**
