@@ -114,6 +114,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Favorites endpoints
+  app.post("/api/favorites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { toolId } = req.body;
+      
+      if (!toolId || typeof toolId !== 'number') {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      const favorite = await storage.addFavorite(userId, toolId);
+      res.json(favorite);
+    } catch (error: any) {
+      console.error("Error adding favorite:", error);
+      if (error.message?.includes('duplicate') || error.code === '23505') {
+        return res.status(409).json({ error: "Tool already favorited" });
+      }
+      res.status(500).json({ error: "Failed to add favorite" });
+    }
+  });
+
+  app.delete("/api/favorites/:toolId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const toolId = parseInt(req.params.toolId);
+      
+      if (isNaN(toolId)) {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      await storage.removeFavorite(userId, toolId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      res.status(500).json({ error: "Failed to remove favorite" });
+    }
+  });
+
+  app.get("/api/favorites", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const tools = await storage.getUserFavorites(userId);
+      res.json(tools.map(transformTool));
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ error: "Failed to fetch favorites" });
+    }
+  });
+
+  app.get("/api/favorites/check/:toolId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const toolId = parseInt(req.params.toolId);
+      
+      if (isNaN(toolId)) {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      const isFavorited = await storage.isFavorited(userId, toolId);
+      res.json({ isFavorited });
+    } catch (error) {
+      console.error("Error checking favorite:", error);
+      res.status(500).json({ error: "Failed to check favorite" });
+    }
+  });
+
+  // Search history endpoints
+  app.post("/api/search-history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { query } = req.body;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Invalid query" });
+      }
+
+      const history = await storage.addSearchHistory(userId, query);
+      res.json(history);
+    } catch (error) {
+      console.error("Error adding search history:", error);
+      res.status(500).json({ error: "Failed to add search history" });
+    }
+  });
+
+  app.get("/api/search-history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const history = await storage.getUserSearchHistory(userId, limit);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching search history:", error);
+      res.status(500).json({ error: "Failed to fetch search history" });
+    }
+  });
+
+  app.delete("/api/search-history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      await storage.clearUserSearchHistory(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error clearing search history:", error);
+      res.status(500).json({ error: "Failed to clear search history" });
+    }
+  });
+
   // Chatbot endpoint
   app.post("/api/chat", async (req, res) => {
     try {

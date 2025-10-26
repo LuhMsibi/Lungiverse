@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Check } from "lucide-react";
+import { FavoriteButton } from "./FavoriteButton";
 import type { AITool } from "@shared/schema";
 
 interface ToolCardProps {
@@ -58,21 +59,25 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between pt-4 border-t gap-4">
-        {tool.usageCount && (
-          <span className="text-xs text-muted-foreground">
-            {tool.usageCount.toLocaleString()} uses
-          </span>
-        )}
-        <Button
-          size="sm"
-          className="ml-auto"
-          onClick={() => tool.url && window.open(tool.url, '_blank')}
-          disabled={!tool.url}
-          data-testid={`button-try-${tool.id}`}
-        >
-          Try Now
-          <ExternalLink className="ml-2 h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {tool.usageCount && (
+            <span className="text-xs text-muted-foreground">
+              {tool.usageCount.toLocaleString()} uses
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
+          <FavoriteButton toolId={tool.id} variant="ghost" />
+          <Button
+            size="sm"
+            onClick={() => tool.url && window.open(tool.url, '_blank')}
+            disabled={!tool.url}
+            data-testid={`button-try-${tool.id}`}
+          >
+            Try Now
+            <ExternalLink className="ml-2 h-3 w-3" />
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

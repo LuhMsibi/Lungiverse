@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -12,6 +12,7 @@ export function Header() {
 
   const navigation = [
     { name: "Tools", href: "/tools" },
+    { name: "Favorites", href: "/favorites", icon: Heart },
     { name: "Articles", href: "/articles" },
     { name: "About", href: "/about" },
   ];
@@ -46,6 +47,7 @@ export function Header() {
                     variant="ghost"
                     className={location === item.href ? "bg-muted" : ""}
                   >
+                    {item.icon && <item.icon className="w-4 h-4 mr-2" />}
                     {item.name}
                   </Button>
                 </Link>
@@ -90,6 +92,7 @@ export function Header() {
                     className="w-full justify-start"
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    {item.icon && <item.icon className="w-4 h-4 mr-2" />}
                     {item.name}
                   </Button>
                 </Link>

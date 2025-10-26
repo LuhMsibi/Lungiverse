@@ -11,6 +11,7 @@ import ToolsDirectory from "@/pages/ToolsDirectory";
 import ArticlesPage from "@/pages/ArticlesPage";
 import ArticleDetailPage from "@/pages/ArticleDetailPage";
 import AboutPage from "@/pages/AboutPage";
+import Favorites from "@/pages/Favorites";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/tools" component={ToolsDirectory} />
+      <Route path="/favorites" component={Favorites} />
       <Route path="/articles" component={ArticlesPage} />
       <Route path="/article/:slug" component={ArticleDetailPage} />
       <Route path="/about" component={AboutPage} />
