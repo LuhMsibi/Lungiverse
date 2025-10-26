@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { ChatBot } from "@/components/ChatBot";
 import HomePage from "@/pages/HomePage";
 import ToolsDirectory from "@/pages/ToolsDirectory";
+import ToolDetailPage from "@/pages/ToolDetailPage";
 import ArticlesPage from "@/pages/ArticlesPage";
 import ArticleDetailPage from "@/pages/ArticleDetailPage";
 import AboutPage from "@/pages/AboutPage";
@@ -19,6 +20,7 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/tools" component={ToolsDirectory} />
+      <Route path="/tool/:id" component={ToolDetailPage} />
       <Route path="/favorites" component={Favorites} />
       <Route path="/articles" component={ArticlesPage} />
       <Route path="/article/:slug" component={ArticleDetailPage} />

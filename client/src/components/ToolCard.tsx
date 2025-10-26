@@ -1,10 +1,11 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Check } from "lucide-react";
+import { ExternalLink, Check, Star } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import type { AITool } from "@shared/schema";
 
@@ -70,7 +71,11 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg leading-tight">{tool.name}</h3>
+            <Link href={`/tool/${tool.id}`}>
+              <h3 className="font-semibold text-lg leading-tight hover:text-primary cursor-pointer transition-colors">
+                {tool.name}
+              </h3>
+            </Link>
             <Badge variant="secondary" className="mt-1">
               {tool.category}
             </Badge>
@@ -108,7 +113,16 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between pt-4 border-t gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {(tool as any).averageRating > 0 && (
+            <div className="flex items-center gap-1" data-testid={`rating-${tool.id}`}>
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-sm font-medium">{(tool as any).averageRating}</span>
+              <span className="text-xs text-muted-foreground">
+                ({(tool as any).reviewCount || 0})
+              </span>
+            </div>
+          )}
           {tool.usageCount && (
             <span className="text-xs text-muted-foreground">
               {tool.usageCount.toLocaleString()} uses

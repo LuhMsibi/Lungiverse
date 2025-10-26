@@ -4,6 +4,7 @@ import {
   articles, 
   users, 
   favorites, 
+  reviews,
   searchHistory,
   analyticsEvents,
   type Tool, 
@@ -12,6 +13,7 @@ import {
   type UpsertUser,
   type Favorite,
   type InsertFavorite,
+  type Review,
   type SearchHistory,
   type InsertSearchHistory,
   type AnalyticsEvent,
@@ -160,6 +162,98 @@ export class DBStorage {
     await db
       .delete(searchHistory)
       .where(eq(searchHistory.userId, userId));
+  }
+
+  // Review operations
+  async addReview(userId: string, toolId: number, rating: number, comment?: string): Promise<Review> {
+    const [review] = await db
+      .insert(reviews)
+      .values({ userId, toolId, rating, comment })
+      .returning();
+    
+    await this.updateToolRating(toolId);
+    return review;
+  }
+
+  async getToolReviews(toolId: number): Promise<Array<Review & { userName: string; userAvatar?: string }>> {
+    const result = await db
+      .select({
+        id: reviews.id,
+        userId: reviews.userId,
+        toolId: reviews.toolId,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        createdAt: reviews.createdAt,
+        updatedAt: reviews.updatedAt,
+        userName: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`,
+        userAvatar: users.profileImageUrl,
+      })
+      .from(reviews)
+      .innerJoin(users, eq(reviews.userId, users.id))
+      .where(eq(reviews.toolId, toolId))
+      .orderBy(desc(reviews.createdAt));
+    return result;
+  }
+
+  async getUserReview(userId: string, toolId: number): Promise<Review | undefined> {
+    const result = await db
+      .select()
+      .from(reviews)
+      .where(and(eq(reviews.userId, userId), eq(reviews.toolId, toolId)))
+      .limit(1);
+    return result[0];
+  }
+
+  async updateReview(reviewId: number, rating: number, comment?: string): Promise<Review> {
+    const [review] = await db
+      .update(reviews)
+      .set({ rating, comment, updatedAt: new Date() })
+      .where(eq(reviews.id, reviewId))
+      .returning();
+    
+    await this.updateToolRating(review.toolId);
+    return review;
+  }
+
+  async getReviewById(reviewId: number): Promise<Review | undefined> {
+    const result = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.id, reviewId))
+      .limit(1);
+    return result[0];
+  }
+
+  async deleteReview(reviewId: number): Promise<void> {
+    const result = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.id, reviewId))
+      .limit(1);
+    
+    if (result.length > 0) {
+      const toolId = result[0].toolId;
+      await db.delete(reviews).where(eq(reviews.id, reviewId));
+      await this.updateToolRating(toolId);
+    }
+  }
+
+  private async updateToolRating(toolId: number): Promise<void> {
+    const result = await db
+      .select({
+        count: count(reviews.id),
+        avg: sql<number>`COALESCE(AVG(${reviews.rating}), 0)`,
+      })
+      .from(reviews)
+      .where(eq(reviews.toolId, toolId));
+    
+    const reviewCount = Number(result[0]?.count || 0);
+    const averageRating = Math.round(Number(result[0]?.avg || 0));
+
+    await db
+      .update(tools)
+      .set({ reviewCount, averageRating })
+      .where(eq(tools.id, toolId));
   }
 
   // Analytics operations

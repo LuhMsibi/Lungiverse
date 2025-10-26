@@ -33,7 +33,7 @@ function transformArticle(article: Article): ArticleLegacy {
 }
 
 // Transform DB Tool to frontend-expected format
-function transformTool(tool: Tool): AITool {
+function transformTool(tool: Tool): AITool & { averageRating?: number; reviewCount?: number } {
   return {
     id: tool.id.toString(),
     name: tool.name,
@@ -44,6 +44,8 @@ function transformTool(tool: Tool): AITool {
     requiresAPI: tool.requiresAPI,
     url: tool.url || undefined,
     usageCount: tool.usageCount,
+    averageRating: tool.averageRating || undefined,
+    reviewCount: tool.reviewCount,
   };
 }
 
@@ -285,6 +287,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching tool analytics:", error);
       res.status(500).json({ error: "Failed to fetch tool analytics" });
+    }
+  });
+
+  // Review endpoints
+  app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { toolId, rating, comment } = req.body;
+
+      if (!toolId || typeof toolId !== 'number') {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+
+      const existingReview = await storage.getUserReview(userId, toolId);
+      if (existingReview) {
+        return res.status(409).json({ error: "You have already reviewed this tool. Use PUT to update." });
+      }
+
+      const review = await storage.addReview(userId, toolId, rating, comment);
+      res.json(review);
+    } catch (error) {
+      console.error("Error adding review:", error);
+      res.status(500).json({ error: "Failed to add review" });
+    }
+  });
+
+  app.get("/api/reviews/tool/:toolId", async (req, res) => {
+    try {
+      const toolId = parseInt(req.params.toolId);
+      if (isNaN(toolId)) {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      const reviews = await storage.getToolReviews(toolId);
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.get("/api/reviews/user/:toolId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const toolId = parseInt(req.params.toolId);
+      if (isNaN(toolId)) {
+        return res.status(400).json({ error: "Invalid toolId" });
+      }
+
+      const review = await storage.getUserReview(userId, toolId);
+      res.json(review || null);
+    } catch (error) {
+      console.error("Error fetching user review:", error);
+      res.status(500).json({ error: "Failed to fetch user review" });
+    }
+  });
+
+  app.put("/api/reviews/:reviewId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const reviewId = parseInt(req.params.reviewId);
+      const { rating, comment } = req.body;
+
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ error: "Invalid reviewId" });
+      }
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+
+      const existingReview = await storage.getReviewById(reviewId);
+      if (!existingReview) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      if (existingReview.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized to update this review" });
+      }
+
+      const review = await storage.updateReview(reviewId, rating, comment);
+      res.json(review);
+    } catch (error) {
+      console.error("Error updating review:", error);
+      res.status(500).json({ error: "Failed to update review" });
+    }
+  });
+
+  app.delete("/api/reviews/:reviewId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const reviewId = parseInt(req.params.reviewId);
+
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ error: "Invalid reviewId" });
+      }
+
+      const existingReview = await storage.getReviewById(reviewId);
+      if (!existingReview) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+      if (existingReview.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized to delete this review" });
+      }
+
+      await storage.deleteReview(reviewId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      res.status(500).json({ error: "Failed to delete review" });
     }
   });
 
