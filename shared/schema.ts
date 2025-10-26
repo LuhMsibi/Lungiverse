@@ -83,7 +83,7 @@ export const articles = pgTable("articles", {
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   excerpt: text("excerpt").notNull(),
   content: text("content").notNull(),
-  coverImage: varchar("cover_image", { length: 500 }).notNull(),
+  coverImage: text("cover_image").notNull(),
   category: varchar("category", { length: 100 }).notNull(),
   authorName: varchar("author_name", { length: 255 }).notNull(),
   authorAvatar: varchar("author_avatar", { length: 500 }),
