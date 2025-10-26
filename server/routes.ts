@@ -68,10 +68,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validationResult = chatRequestSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json({ error: "Invalid request format" });
+        console.error("Chat validation error:", validationResult.error);
+        console.error("Request body:", JSON.stringify(req.body, null, 2));
+        return res.status(400).json({ error: "Invalid request format", details: validationResult.error });
       }
 
       const { message, conversationHistory = [] } = validationResult.data;
+      console.log(`Chat request: message="${message}", history length=${conversationHistory.length}`);
 
       // Get all tools for context
       const tools = await storage.getAllTools();
@@ -129,13 +132,17 @@ Keep responses concise and actionable.`,
         .map(tool => tool.id)
         .slice(0, 3);
 
+      console.log(`Chat response: ${assistantMessage.substring(0, 100)}...`);
       res.json({
         message: assistantMessage,
         suggestedTools,
       });
     } catch (error) {
       console.error("Error in chat endpoint:", error);
-      res.status(500).json({ error: "Failed to process chat request" });
+      if (error instanceof Error) {
+        console.error("Error stack:", error.stack);
+      }
+      res.status(500).json({ error: "Failed to process chat request", details: String(error) });
     }
   });
 

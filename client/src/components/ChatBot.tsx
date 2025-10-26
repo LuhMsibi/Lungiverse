@@ -2,17 +2,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, AlertCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage, ChatRequest, ChatResponse } from "@shared/schema";
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const { toast } = useToast();
 
   const chatMutation = useMutation({
     mutationFn: async (data: ChatRequest) => {
@@ -28,6 +30,14 @@ export function ChatBot() {
       };
       setMessages((prev) => [...prev, assistantMessage]);
     },
+    onError: (error) => {
+      console.error("Chat error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get a response. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleSend = () => {
@@ -40,8 +50,7 @@ export function ChatBot() {
       timestamp: Date.now(),
     };
 
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, userMessage]);
     
     chatMutation.mutate({
       message: input,
