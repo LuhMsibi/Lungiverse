@@ -1,7 +1,7 @@
 import type { Express} from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./dbStorage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
 import OpenAI from "openai";
 
@@ -58,7 +58,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      res.json(user);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        id: user.id,
+        name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
+        email: user.email,
+        profileImage: user.profileImageUrl,
+        isAdmin: user.isAdmin || false,
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -485,7 +496,7 @@ Keep responses concise and actionable.`,
   });
 
   // Admin endpoints
-  app.post("/api/admin/tools", isAuthenticated, async (req: any, res) => {
+  app.post("/api/admin/tools", isAdmin, async (req: any, res) => {
     try {
       const { name, description, category, features, isPaid, requiresAPI, url } = req.body;
       
@@ -510,7 +521,7 @@ Keep responses concise and actionable.`,
     }
   });
 
-  app.post("/api/admin/articles", isAuthenticated, async (req: any, res) => {
+  app.post("/api/admin/articles", isAdmin, async (req: any, res) => {
     try {
       const { title, slug, excerpt, content, coverImage, category, authorName, authorAvatar, readTime, tags } = req.body;
       

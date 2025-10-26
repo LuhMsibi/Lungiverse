@@ -147,6 +147,19 @@ export default function AdminPage() {
     );
   }
 
+  if (!user.isAdmin) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Forbidden</CardTitle>
+            <CardDescription>You do not have admin privileges to access this page</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">

@@ -31,13 +31,14 @@ export const sessions = pgTable(
   })
 );
 
-// Users Table (keeping serial ID for compatibility)
+// Users Table (keeping varchar ID for Replit Auth compatibility)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
   email: varchar("email", { length: 255 }).unique(),
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
   profileImageUrl: varchar("profile_image_url", { length: 500 }),
+  isAdmin: boolean("is_admin").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -10,6 +10,7 @@ export interface User {
   name: string;
   email: string;
   profileImage?: string;
+  isAdmin?: boolean;
 }
 
 export function useAuth() {
