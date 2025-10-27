@@ -26,13 +26,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logoImage} alt="ToolForge AI" className="h-8 w-8" />
+              <img src={logoImage} alt="Lungiverse" className="h-8 w-8" />
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-                ToolForge AI
+                Lungiverse
               </span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Forge Your AI Workflow
+              Discover Your AI Universe
             </p>
             <p className="text-sm text-muted-foreground">
               Your centralized platform for discovering AI tools and conversion utilities.
@@ -116,7 +116,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© 2025 ToolForge AI. All rights reserved.</p>
+          <p>© 2025 Lungiverse. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -1,10 +1,10 @@
-# ToolForge AI
+# Lungiverse
 
 ## Overview
 
-ToolForge AI is a centralized platform for discovering, comparing, and utilizing AI tools and conversion utilities. The application provides a comprehensive directory of 250+ AI tools across multiple categories (Conversion, Image AI, Text AI, Video AI, Audio AI, Code AI) with intelligent search capabilities, article content for user education, and an AI-powered chatbot assistant for tool recommendations.
+Lungiverse is a centralized platform for discovering, comparing, and utilizing AI tools and conversion utilities. The application provides a comprehensive directory of 250+ AI tools across multiple categories (Conversion, Image AI, Text AI, Video AI, Audio AI, Code AI) with intelligent search capabilities, article content for user education, and an AI-powered chatbot assistant for tool recommendations.
 
-The platform is built as a full-stack web application with a React frontend and Express backend, designed to help users navigate the AI tools landscape with curated content, expert insights, and guided discovery.
+The platform is built as a full-stack web application with a React frontend and Express backend, designed to help users navigate the AI tools landscape with curated content, expert insights, and guided discovery. The brand name "Lungiverse" derives from the founder's name, Lungisani, combined with "universe" to represent a comprehensive universe of AI tools.
 
 ## User Preferences
 

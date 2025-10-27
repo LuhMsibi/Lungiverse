@@ -1,9 +1,9 @@
-# Design Guidelines: ToolForge AI
+# Design Guidelines: Lungiverse
 
 ## Brand Identity
 
-**Name:** ToolForge AI  
-**Tagline:** "Forge Your AI Workflow"
+**Name:** Lungiverse  
+**Tagline:** "Discover Your AI Universe"
 
 **Logo Concept:**  
 A geometric anvil icon combined with circuit-pattern details, symbolizing the crafting of AI solutions. The icon uses clean, angular shapes that work well at all sizes. Wordmark uses a modern sans-serif in sentence case with "AI" slightly elevated.

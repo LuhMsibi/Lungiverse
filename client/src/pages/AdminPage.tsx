@@ -164,7 +164,7 @@ export default function AdminPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Admin Panel</h1>
-        <p className="text-muted-foreground">Add new tools and articles to ToolForge AI</p>
+        <p className="text-muted-foreground">Add new tools and articles to Lungiverse</p>
       </div>
 
       <Tabs defaultValue="tools" className="w-full">

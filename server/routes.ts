@@ -437,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         {
           role: "system",
-          content: `You are a helpful AI assistant for ToolForge AI, a platform that helps users discover and choose AI tools. Your role is to:
+          content: `You are a helpful AI assistant for Lungiverse, a platform that helps users discover and choose AI tools. Your role is to:
 
 1. Understand user needs and recommend appropriate AI tools from our catalog
 2. Provide clear, concise information about tools and their capabilities

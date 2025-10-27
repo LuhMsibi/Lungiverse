@@ -42,10 +42,10 @@ export function Header() {
           <div className="flex items-center gap-8">
             <Link href="/" data-testid="link-home">
               <div className="flex items-center gap-3 hover-elevate active-elevate-2 rounded-md px-2 py-1 transition-all cursor-pointer">
-                <img src={logoImage} alt="ToolForge AI" className="h-8 w-8" />
+                <img src={logoImage} alt="Lungiverse" className="h-8 w-8" />
                 <div className="flex flex-col">
                   <span className="text-xl font-bold bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-                    ToolForge AI
+                    Lungiverse
                   </span>
                 </div>
               </div>

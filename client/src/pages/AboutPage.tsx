@@ -36,7 +36,7 @@ export default function AboutPage() {
             <h1 className="text-4xl sm:text-5xl font-bold">
               About{" "}
               <span className="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">
-                ToolForge AI
+                Lungiverse
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -50,7 +50,7 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
               <div className="space-y-4 text-lg text-muted-foreground">
                 <p>
-                  ToolForge AI was born from a simple observation: finding the right AI tool for your specific need shouldn't be overwhelming or time-consuming.
+                  Lungiverse was born from a simple observation: finding the right AI tool for your specific need shouldn't be overwhelming or time-consuming.
                 </p>
                 <p>
                   We're building the most comprehensive, user-friendly platform for discovering, comparing, and understanding AI tools. Whether you're a developer looking for code assistance, a content creator seeking image generation tools, or a business professional needing document conversion utilities, we're here to help you find exactly what you need.
