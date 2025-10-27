@@ -67,7 +67,7 @@ const futureAIImage = 'data:image/svg+xml;base64,' + Buffer.from(`
   </svg>
 `).toString('base64');
 
-const toolsData = [
+export const toolsData = [
   // Conversion Tools
   {
     name: "CloudConvert",
@@ -367,7 +367,7 @@ const toolsData = [
   },
 ];
 
-const articlesData = [
+export const articlesData = [
   {
     title: "How AI is Transforming Business Workflows in 2025",
     slug: "ai-transforming-business-workflows-2025",
