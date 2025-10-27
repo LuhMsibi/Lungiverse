@@ -70,7 +70,7 @@ export function ChatBot() {
       {!isOpen && (
         <Button
           size="icon"
-          className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl hover:shadow-primary/50 animate-pulse-glow z-50 bg-gradient-to-br from-primary to-chart-2"
+          className="fixed bottom-20 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-primary/50 animate-pulse-glow z-[100] bg-gradient-to-br from-primary to-chart-2"
           onClick={() => setIsOpen(true)}
           data-testid="button-chatbot-open"
         >
@@ -79,7 +79,7 @@ export function ChatBot() {
       )}
 
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[600px] shadow-2xl flex flex-col animate-slide-in-right z-50">
+        <Card className="fixed bottom-6 right-6 w-96 h-[600px] max-h-[80vh] shadow-2xl flex flex-col animate-slide-in-right z-[100]">
           <CardHeader className="border-b flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

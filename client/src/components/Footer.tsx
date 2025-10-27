@@ -34,8 +34,13 @@ export function Footer() {
             <p className="text-sm text-muted-foreground mb-4">
               Discover Your AI Universe
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-4">
               Your centralized platform for discovering AI tools and conversion utilities.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              <a href="mailto:contact@lungiverse.com" className="hover:text-foreground transition-colors">
+                contact@lungiverse.com
+              </a>
             </p>
           </div>
 
@@ -76,20 +81,40 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Categories</h3>
             <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                Conversion Tools
+              <li>
+                <Link href="/tools?category=Conversion">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Conversion Tools
+                  </span>
+                </Link>
               </li>
-              <li className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                Image AI
+              <li>
+                <Link href="/tools?category=Image AI">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Image AI
+                  </span>
+                </Link>
               </li>
-              <li className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                Text AI
+              <li>
+                <Link href="/tools?category=Text AI">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Text AI
+                  </span>
+                </Link>
               </li>
-              <li className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                Video AI
+              <li>
+                <Link href="/tools?category=Video AI">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Video AI
+                  </span>
+                </Link>
               </li>
-              <li className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                Code AI
+              <li>
+                <Link href="/tools?category=Code AI">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Code AI
+                  </span>
+                </Link>
               </li>
             </ul>
           </div>
