@@ -42,8 +42,8 @@ function App() {
             <Router />
           </main>
           <Footer />
-          <ChatBot />
         </div>
+        <ChatBot />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

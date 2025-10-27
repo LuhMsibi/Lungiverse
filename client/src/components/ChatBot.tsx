@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,12 @@ export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const chatMutation = useMutation({
     mutationFn: async (data: ChatRequest) => {
@@ -65,12 +71,18 @@ export function ChatBot() {
     "Show me free image generators",
   ];
 
-  return (
+  const chatbotContent = (
     <>
       {!isOpen && (
         <Button
           size="icon"
-          className="fixed bottom-24 right-8 h-16 w-16 rounded-full shadow-2xl hover:shadow-primary/50 animate-pulse-glow z-[100] bg-gradient-to-br from-primary to-chart-2"
+          className="h-16 w-16 rounded-full shadow-2xl hover:shadow-primary/50 animate-pulse-glow bg-gradient-to-br from-primary to-chart-2"
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            zIndex: 9999
+          }}
           onClick={() => setIsOpen(true)}
           data-testid="button-chatbot-open"
         >
@@ -79,7 +91,15 @@ export function ChatBot() {
       )}
 
       {isOpen && (
-        <Card className="fixed bottom-8 right-8 w-96 h-[600px] max-h-[calc(100vh-100px)] shadow-2xl flex flex-col animate-slide-in-right z-[100]">
+        <Card 
+          className="w-96 h-[600px] max-h-[calc(100vh-100px)] shadow-2xl flex flex-col"
+          style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            zIndex: 9999
+          }}
+        >
           <CardHeader className="border-b flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -184,4 +204,10 @@ export function ChatBot() {
       )}
     </>
   );
+
+  if (!isMounted || typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(chatbotContent, document.body);
 }
