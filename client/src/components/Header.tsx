@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Search, Menu, X, Heart, LogIn, LogOut, User } from "lucide-react";
+import { Search, Menu, Heart, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -14,6 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -127,71 +133,98 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => setMobileMenuOpen(true)}
               data-testid="button-mobile-menu"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t py-4 animate-fade-in">
-            <nav className="flex flex-col gap-2">
-              {navigation.map((item) => (
-                <Link key={item.name} href={item.href}>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.icon && <item.icon className="w-4 h-4 mr-2" />}
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
-              
-              {!isLoading && (
-                user ? (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <a href="/api/logout" data-testid="button-logout-mobile">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Log out
-                    </a>
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <a href="/api/login" data-testid="button-login-mobile">
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Log in
-                    </a>
-                  </Button>
-                )
-              )}
-            </nav>
-            <form onSubmit={handleSearch} className="mt-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search AI tools..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                  data-testid="input-search-mobile"
-                />
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="right" className="w-[300px] sm:w-[350px]">
+            <SheetHeader>
+              <SheetTitle className="text-left">Menu</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6 flex flex-col gap-4">
+              <nav className="flex flex-col gap-1">
+                {navigation.map((item) => (
+                  <Link key={item.name} href={item.href}>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="w-full justify-start text-base"
+                      onClick={() => setMobileMenuOpen(false)}
+                      data-testid={`link-${item.name.toLowerCase()}-mobile`}
+                    >
+                      {item.icon && <item.icon className="w-5 h-5 mr-3" />}
+                      {item.name}
+                    </Button>
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="border-t pt-4">
+                <form onSubmit={(e) => { handleSearch(e); setMobileMenuOpen(false); }}>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      placeholder="Search AI tools..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                      data-testid="input-search-mobile"
+                    />
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        )}
+
+              <div className="border-t pt-4">
+                {!isLoading && (
+                  user ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-muted/50">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={user.profileImage} alt={user.name} />
+                          <AvatarFallback>
+                            {user.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{user.name}</span>
+                          <span className="text-xs text-muted-foreground">View Profile</span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="w-full justify-start text-base mt-2"
+                        asChild
+                      >
+                        <a href="/api/logout" data-testid="button-logout-mobile">
+                          <LogOut className="w-5 h-5 mr-3" />
+                          Log out
+                        </a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="lg"
+                      className="w-full text-base"
+                      asChild
+                    >
+                      <a href="/api/login" data-testid="button-login-mobile">
+                        <LogIn className="w-5 h-5 mr-2" />
+                        Log in
+                      </a>
+                    </Button>
+                  )
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
