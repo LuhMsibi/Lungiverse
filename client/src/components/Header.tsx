@@ -3,7 +3,7 @@ import { Search, Menu, X, Heart, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import logoImage from "@assets/generated_images/ToolForge_AI_logo_icon_3e9816aa.png";
+import logoImage from "@assets/generated_images/Lungiverse_AI_platform_logo_8f2ec262.png";
 import { useAuth } from "@/lib/authUtils";
 import {
   DropdownMenu,
