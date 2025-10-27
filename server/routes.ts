@@ -4,6 +4,7 @@ import { storage } from "./dbStorage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
 import OpenAI from "openai";
+import { seedDatabase } from "./seedData";
 
 // Using Replit's AI Integrations service for OpenAI - reference: blueprint:javascript_openai_ai_integrations
 // The newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
@@ -546,6 +547,25 @@ Keep responses concise and actionable.`,
     } catch (error) {
       console.error("Error creating article:", error);
       res.status(500).json({ error: "Failed to create article" });
+    }
+  });
+
+  app.post("/api/admin/seed", isAdmin, async (req: any, res) => {
+    try {
+      console.log("🌱 Starting database seed from admin endpoint...");
+      const result = await seedDatabase();
+      console.log("✅ Database seeding complete:", result);
+      res.json({
+        success: true,
+        message: "Database seeded successfully",
+        ...result,
+      });
+    } catch (error) {
+      console.error("❌ Error seeding database:", error);
+      res.status(500).json({ 
+        error: "Failed to seed database", 
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 

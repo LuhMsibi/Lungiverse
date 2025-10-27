@@ -14,6 +14,7 @@ import ArticleDetailPage from "@/pages/ArticleDetailPage";
 import AboutPage from "@/pages/AboutPage";
 import Favorites from "@/pages/Favorites";
 import AdminPage from "@/pages/AdminPage";
+import AdminSeedPage from "@/pages/AdminSeedPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/article/:slug" component={ArticleDetailPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin/seed" component={AdminSeedPage} />
       <Route component={NotFound} />
     </Switch>
   );

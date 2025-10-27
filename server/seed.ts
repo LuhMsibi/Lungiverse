@@ -648,4 +648,7 @@ async function seed() {
   }
 }
 
-seed();
+// Only run seed if this file is executed directly (not imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  seed();
+}

@@ -10,6 +10,56 @@ The platform is built as a full-stack web application with a React frontend and 
 
 Preferred communication style: Simple, everyday language.
 
+## Production Database Seeding
+
+**IMPORTANT:** Replit has TWO separate databases:
+1. **Development Database** - Used during development in the workspace
+2. **Production Database** - Powers the published site at lungiverse.com
+
+**How to Populate Production Database:**
+
+The production database does NOT automatically copy data from development. To add the 26 AI tools and 5 articles to your published site:
+
+### Method 1: Admin Seeding Page (Easiest!)
+1. Publish your site to lungiverse.com
+2. Log in with your Replit account
+3. Promote yourself to admin by running this SQL in the database pane:
+   ```sql
+   UPDATE users SET is_admin = true WHERE email = 'your-email@example.com';
+   ```
+4. Visit: `https://lungiverse.com/admin/seed`
+5. Click "Seed Production Database" button
+6. Wait 5-10 seconds - done!
+
+### Method 2: Manual Entry via Database Pane
+1. Open Database pane in Replit
+2. Toggle to "Production Database"
+3. Go to "My data" tab
+4. Click "Edit" to enable editing
+5. Manually insert 26 tools and 5 articles (tedious!)
+
+### What Gets Seeded:
+- **26 AI Tools** across 6 categories:
+  - 3 Conversion tools (CloudConvert, PDF.co, Zamzar)
+  - 5 Image AI tools (DALL-E 3, Midjourney, Stable Diffusion, Remove.bg, Canva AI)
+  - 5 Text AI tools (ChatGPT, Jasper AI, Copy.ai, Grammarly, QuillBot)
+  - 4 Video AI tools (Runway ML, Synthesia, Descript, Pictory)
+  - 4 Audio AI tools (ElevenLabs, Murf AI, Adobe Podcast, Krisp)
+  - 5 Code AI tools (GitHub Copilot, Tabnine, Cursor, Replit AI, CodeWhisperer)
+  
+- **5 SEO-Optimized Articles:**
+  - "How AI is Transforming Business Workflows in 2025"
+  - "The Complete Guide to Choosing the Right AI Tools"
+  - "Understanding File Conversion Tools: From PDF to Everything"
+  - "Boosting Productivity with AI: Real-World Success Stories"
+  - "The Future of AI Tools: Trends to Watch in 2025"
+
+### Technical Implementation:
+- **Admin Endpoint:** `POST /api/admin/seed` (protected by `isAdmin` middleware)
+- **Seeding Module:** `server/seedData.ts` contains all data
+- **Idempotent:** Safe to run multiple times (uses `onConflictDoNothing()`)
+- **Frontend Page:** `client/src/pages/AdminSeedPage.tsx` provides UI
+
 ## System Architecture
 
 ### Frontend Architecture
