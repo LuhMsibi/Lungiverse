@@ -125,19 +125,19 @@ export default function HomePage() {
 
             <form onSubmit={handleSearch} className="relative">
               <div className="relative group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Try: 'PDF to Word converter' or 'AI image generator'..."
+                  placeholder="Search AI tools..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-16 pl-16 pr-32 text-lg border-2 focus:border-primary transition-all"
+                  className="h-12 sm:h-16 pl-12 sm:pl-16 pr-24 sm:pr-32 text-base sm:text-lg border-2 focus:border-primary transition-all"
                   data-testid="input-hero-search"
                 />
                 <Button
                   type="submit"
-                  size="lg"
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  size="default"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-sm sm:text-base"
                   data-testid="button-hero-search"
                 >
                   Search

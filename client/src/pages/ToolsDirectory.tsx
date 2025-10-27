@@ -136,10 +136,21 @@ export default function ToolsDirectory() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter:</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Filter:</span>
+              </div>
+              
+              <Button
+                variant={showFreeOnly ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowFreeOnly(!showFreeOnly)}
+                data-testid="button-free-only"
+              >
+                Free Only
+              </Button>
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -154,17 +165,6 @@ export default function ToolsDirectory() {
                   {category}
                 </Badge>
               ))}
-            </div>
-
-            <div className="ml-auto flex gap-2">
-              <Button
-                variant={showFreeOnly ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowFreeOnly(!showFreeOnly)}
-                data-testid="button-free-only"
-              >
-                Free Only
-              </Button>
             </div>
           </div>
         </div>
