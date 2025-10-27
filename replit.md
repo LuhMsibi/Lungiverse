@@ -56,8 +56,10 @@ The production database does NOT automatically copy data from development. To ad
 
 ### Technical Implementation:
 - **Admin Endpoint:** `POST /api/admin/seed` (protected by `isAdmin` middleware)
-- **Seeding Module:** `server/seedData.ts` contains all data
-- **Idempotent:** Safe to run multiple times (uses `onConflictDoNothing()`)
+- **Seeding Module:** `server/seedData.ts` imports from `server/seed.ts` (single source of truth)
+- **Duplicate Prevention:** Tools table has unique constraint on `name` column; Articles table has unique constraint on `slug` column
+- **Idempotent:** Safe to run multiple times (uses `onConflictDoNothing()` with `.returning()` for accurate reporting)
+- **Accurate Reporting:** Shows "X new, Y already existed" so you know exactly what happened
 - **Frontend Page:** `client/src/pages/AdminSeedPage.tsx` provides UI
 
 ## System Architecture

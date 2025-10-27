@@ -49,7 +49,7 @@ export type User = typeof users.$inferSelect;
 // Tools Table
 export const tools = pgTable("tools", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
   description: text("description").notNull(),
   category: varchar("category", { length: 50 }).notNull(),
   features: jsonb("features").notNull().$type<string[]>(),
