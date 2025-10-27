@@ -627,6 +627,9 @@ export const articlesData = [
   },
 ];
 
+// Note: This file only exports data. Use seedData.ts for controlled seeding.
+// The seed() function below is kept for backwards compatibility but should not be used.
+
 async function seed() {
   console.log("🌱 Seeding database...");
   
@@ -648,7 +651,8 @@ async function seed() {
   }
 }
 
-// Only run seed if this file is executed directly (not imported)
-if (import.meta.url === `file://${process.argv[1]}`) {
-  seed();
-}
+// DISABLED: Auto-execution removed to prevent production startup conflicts
+// Use seedData.ts and the /api/admin/seed endpoint instead
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   seed();
+// }
