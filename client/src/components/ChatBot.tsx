@@ -24,8 +24,9 @@ export function ChatBot() {
 
   const chatMutation = useMutation({
     mutationFn: async (data: ChatRequest) => {
-      const response = await apiRequest("/api/chat", "POST", data) as unknown;
-      return response as ChatResponse;
+      const response = await apiRequest("/api/chat", "POST", data);
+      const jsonData = await response.json();
+      return jsonData as ChatResponse;
     },
     onSuccess: (data: ChatResponse) => {
       const assistantMessage: ChatMessage = {
@@ -92,13 +93,16 @@ export function ChatBot() {
 
       {isOpen && (
         <Card 
-          className="w-96 h-[600px] max-h-[calc(100vh-100px)] shadow-2xl flex flex-col"
+          className="w-full sm:w-96 h-[600px] max-h-[calc(100vh-100px)] shadow-2xl flex flex-col mx-4 sm:mx-0"
           style={{
             position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
+            bottom: '1rem',
+            right: '0',
+            left: '0',
+            maxWidth: 'calc(100vw - 2rem)',
             zIndex: 9999
           }}
+          data-testid="card-chatbot"
         >
           <CardHeader className="border-b flex-shrink-0">
             <div className="flex items-center justify-between">
