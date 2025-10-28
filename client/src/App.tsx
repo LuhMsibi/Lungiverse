@@ -15,6 +15,9 @@ import AboutPage from "@/pages/AboutPage";
 import Favorites from "@/pages/Favorites";
 import AdminPage from "@/pages/AdminPage";
 import AdminSeedPage from "@/pages/AdminSeedPage";
+import ContactPage from "@/pages/ContactPage";
+import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
+import TermsOfServicePage from "@/pages/TermsOfServicePage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,6 +30,9 @@ function Router() {
       <Route path="/articles" component={ArticlesPage} />
       <Route path="/article/:slug" component={ArticleDetailPage} />
       <Route path="/about" component={AboutPage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/privacy" component={PrivacyPolicyPage} />
+      <Route path="/terms" component={TermsOfServicePage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin/seed" component={AdminSeedPage} />
       <Route component={NotFound} />

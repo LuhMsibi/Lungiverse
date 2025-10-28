@@ -75,6 +75,13 @@ export function Footer() {
                   </span>
                 </Link>
               </li>
+              <li>
+                <Link href="/contact" data-testid="link-footer-contact">
+                  <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    Contact Us
+                  </span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -140,8 +147,22 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© 2025 Lungiverse. All rights reserved.</p>
+        <div className="mt-12 pt-8 border-t">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+            <p>© 2025 Lungiverse. All rights reserved.</p>
+            <div className="flex gap-6">
+              <Link href="/privacy" data-testid="link-footer-privacy">
+                <span className="hover:text-foreground transition-colors cursor-pointer">
+                  Privacy Policy
+                </span>
+              </Link>
+              <Link href="/terms" data-testid="link-footer-terms">
+                <span className="hover:text-foreground transition-colors cursor-pointer">
+                  Terms of Service
+                </span>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
