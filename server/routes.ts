@@ -503,6 +503,35 @@ Keep responses concise and actionable.`,
     }
   });
 
+  // Contact form endpoint
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email address" });
+      }
+
+      await storage.createContactMessage({
+        name,
+        email,
+        subject,
+        message,
+      });
+
+      res.json({ success: true, message: "Your message has been sent successfully. We'll get back to you soon!" });
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      res.status(500).json({ error: "Failed to send message. Please try again later." });
+    }
+  });
+
   // Admin endpoints
   app.post("/api/admin/tools", isAdmin, async (req: any, res) => {
     try {

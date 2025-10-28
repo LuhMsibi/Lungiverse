@@ -7,6 +7,7 @@ import {
   reviews,
   searchHistory,
   analyticsEvents,
+  contactMessages,
   type Tool, 
   type Article, 
   type User, 
@@ -17,7 +18,9 @@ import {
   type SearchHistory,
   type InsertSearchHistory,
   type AnalyticsEvent,
-  type InsertAnalyticsEvent
+  type InsertAnalyticsEvent,
+  type ContactMessage,
+  type InsertContactMessage
 } from "@shared/schema";
 import { sql, ilike, or, eq, desc, and, count, gt } from "drizzle-orm";
 
@@ -377,6 +380,24 @@ export class DBStorage {
       recentViews: Number(recentViews),
       recentClicks: Number(recentClicks),
     };
+  }
+
+  // Contact message operations
+  async createContactMessage(messageData: InsertContactMessage): Promise<ContactMessage> {
+    const [message] = await db
+      .insert(contactMessages)
+      .values(messageData)
+      .returning();
+    return message;
+  }
+
+  async getAllContactMessages(): Promise<ContactMessage[]> {
+    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+  }
+
+  async getContactMessageById(id: number): Promise<ContactMessage | undefined> {
+    const result = await db.select().from(contactMessages).where(eq(contactMessages.id, id)).limit(1);
+    return result[0];
   }
 }
 

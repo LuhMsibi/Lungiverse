@@ -197,6 +197,25 @@ export const insertToolSubmissionSchema = createInsertSchema(toolSubmissions).om
 export type InsertToolSubmission = z.infer<typeof insertToolSubmissionSchema>;
 export type ToolSubmission = typeof toolSubmissions.$inferSelect;
 
+// Contact Messages Table
+export const contactMessages = pgTable("contact_messages", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  message: text("message").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("new"), // 'new', 'read', 'responded'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({ 
+  id: true, 
+  status: true,
+  createdAt: true 
+});
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+export type ContactMessage = typeof contactMessages.$inferSelect;
+
 // ============ LEGACY ZODS (for compatibility) ============
 
 // AI Tool Schema
