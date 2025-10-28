@@ -50,13 +50,16 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
               <div className="space-y-4 text-lg text-muted-foreground">
                 <p>
-                  Lungiverse was born from a simple observation: finding the right AI tool for your specific need shouldn't be overwhelming or time-consuming.
+                  Lungiverse was born from a simple observation: finding the right AI tool for your specific need shouldn't be overwhelming or time-consuming. Founded by Lungisani, a passionate technology enthusiast who experienced firsthand the challenges of navigating the rapidly expanding AI landscape, Lungiverse represents a vision of making artificial intelligence accessible and understandable for everyone.
                 </p>
                 <p>
-                  We're building the most comprehensive, user-friendly platform for discovering, comparing, and understanding AI tools. Whether you're a developer looking for code assistance, a content creator seeking image generation tools, or a business professional needing document conversion utilities, we're here to help you find exactly what you need.
+                  The name "Lungiverse" combines the founder's name with "universe" to represent our commitment to creating a comprehensive universe of AI tools all in one place. What started as a personal project to organize and catalog useful AI tools has evolved into a platform serving thousands of users worldwide, from individual creators and developers to businesses and educational institutions.
                 </p>
                 <p>
-                  Our intelligent search and AI-powered chatbot assistant make it easy to describe what you're looking for and get personalized recommendations instantly.
+                  We're building the most comprehensive, user-friendly platform for discovering, comparing, and understanding AI tools. Whether you're a developer looking for code assistance, a content creator seeking image generation tools, or a business professional needing document conversion utilities, we're here to help you find exactly what you need. Our intelligent search and AI-powered chatbot assistant make it easy to describe what you're looking for and get personalized recommendations instantly.
+                </p>
+                <p>
+                  At Lungiverse, we believe that AI technology should empower everyone, not just technical experts. That's why we carefully curate each tool, verify its quality and reliability, and present information in clear, accessible language. We continuously update our directory as new tools emerge and existing ones evolve, ensuring you always have access to the latest and most effective solutions in the AI space.
                 </p>
               </div>
             </CardContent>

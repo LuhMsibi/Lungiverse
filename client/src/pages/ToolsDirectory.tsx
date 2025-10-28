@@ -79,11 +79,19 @@ export default function ToolsDirectory() {
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 space-y-4">
+        <div className="mb-12 space-y-6">
           <h1 className="text-4xl sm:text-5xl font-bold">AI Tools Directory</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Browse our comprehensive collection of AI tools and utilities. Filter by category or search for specific features.
-          </p>
+          <div className="max-w-4xl space-y-4">
+            <p className="text-lg text-muted-foreground">
+              Welcome to the most comprehensive directory of AI tools and utilities on the web. Our carefully curated collection features over 250 cutting-edge AI solutions across six major categories: Conversion Tools, Image AI, Text AI, Video AI, Audio AI, and Code AI.
+            </p>
+            <p className="text-base text-muted-foreground">
+              Whether you're looking for powerful image generation tools like DALL-E and Midjourney, intelligent writing assistants like ChatGPT and Jasper AI, professional video creation tools like Runway ML, or essential code assistance with GitHub Copilot, you'll find everything you need right here. Each tool in our directory has been verified for quality, reliability, and effectiveness, saving you countless hours of research and testing.
+            </p>
+            <p className="text-base text-muted-foreground">
+              Use our advanced search to find tools by name, description, or specific features. Filter by category to explore specialized solutions, or toggle "Free Only" to discover amazing tools that won't cost you a penny. Our intelligent search remembers your recent queries to help you quickly return to tools you've explored before. Start your AI journey today and discover how the right tools can transform your workflow.
+            </p>
+          </div>
         </div>
 
         {/* Search and Filters */}
