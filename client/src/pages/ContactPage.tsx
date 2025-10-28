@@ -37,12 +37,7 @@ export default function ContactPage() {
 
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
-      const response = await apiRequest("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      return await response.json();
+      return await apiRequest("/api/contact", "POST", data);
     },
     onSuccess: () => {
       setIsSubmitted(true);
