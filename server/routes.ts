@@ -468,10 +468,17 @@ Keep responses concise and actionable.`,
       ];
 
       // Call OpenAI API
+      console.log("Calling OpenAI API with model: gpt-4.1");
       const completion = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        model: "gpt-4.1", // Using gpt-4.1 for reliable responses
         messages,
-        max_completion_tokens: 500,
+        max_tokens: 1000, // Increased token limit for complete responses
+      });
+
+      console.log("OpenAI response received:", {
+        choices: completion.choices?.length,
+        hasContent: !!completion.choices?.[0]?.message?.content,
+        finishReason: completion.choices?.[0]?.finish_reason
       });
 
       const assistantMessage = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
@@ -482,7 +489,7 @@ Keep responses concise and actionable.`,
         .map(tool => tool.id)
         .slice(0, 3);
 
-      console.log(`Chat response: ${assistantMessage.substring(0, 100)}...`);
+      console.log(`Chat response generated: ${assistantMessage.substring(0, 100)}${assistantMessage.length > 100 ? '...' : ''}`);
       res.json({
         message: assistantMessage,
         suggestedTools,
