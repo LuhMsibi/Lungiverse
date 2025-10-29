@@ -31,6 +31,7 @@ export default function AdminPage() {
   const [articleSlug, setArticleSlug] = useState("");
   const [articleExcerpt, setArticleExcerpt] = useState("");
   const [articleContent, setArticleContent] = useState("");
+  const [articleCoverImage, setArticleCoverImage] = useState("");
   const [articleCategory, setArticleCategory] = useState("");
   const [articleAuthor, setArticleAuthor] = useState("");
   const [articleReadTime, setArticleReadTime] = useState("");
@@ -79,6 +80,7 @@ export default function AdminPage() {
       setArticleSlug("");
       setArticleExcerpt("");
       setArticleContent("");
+      setArticleCoverImage("");
       setArticleCategory("");
       setArticleAuthor("");
       setArticleReadTime("");
@@ -144,7 +146,7 @@ export default function AdminPage() {
       slug: articleSlug,
       excerpt: articleExcerpt,
       content: articleContent,
-      coverImage: "",
+      coverImage: articleCoverImage,
       category: articleCategory,
       authorName: articleAuthor,
       readTime: articleReadTime,
@@ -378,6 +380,21 @@ export default function AdminPage() {
                     rows={8}
                     data-testid="input-article-content"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="article-cover-image">Cover Image URL *</Label>
+                  <Input
+                    id="article-cover-image"
+                    value={articleCoverImage}
+                    onChange={(e) => setArticleCoverImage(e.target.value)}
+                    placeholder="/attached_assets/article_images/your-image.jpg or https://..."
+                    required
+                    data-testid="input-article-coverimage"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload image to attached_assets/article_images/ folder and paste path here, or use external URL
+                  </p>
                 </div>
 
                 <div className="space-y-2">
