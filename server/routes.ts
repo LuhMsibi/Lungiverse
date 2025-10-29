@@ -586,6 +586,21 @@ Keep responses concise and actionable.`,
     }
   });
 
+  app.delete("/api/admin/articles/:id", isAdmin, async (req: any, res) => {
+    try {
+      const articleId = parseInt(req.params.id);
+      if (isNaN(articleId)) {
+        return res.status(400).json({ error: "Invalid article ID" });
+      }
+
+      await storage.deleteArticle(articleId);
+      res.json({ success: true, message: "Article deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      res.status(500).json({ error: "Failed to delete article" });
+    }
+  });
+
   app.post("/api/admin/seed", isAdmin, async (req: any, res) => {
     try {
       console.log("🌱 Starting database seed from admin endpoint...");

@@ -132,6 +132,10 @@ export class DBStorage {
     return article;
   }
 
+  async deleteArticle(id: number): Promise<void> {
+    await db.delete(articles).where(eq(articles.id, id));
+  }
+
   // Favorites operations
   async addFavorite(userId: string, toolId: number): Promise<Favorite> {
     const [favorite] = await db
@@ -233,7 +237,7 @@ export class DBStorage {
       .innerJoin(users, eq(reviews.userId, users.id))
       .where(eq(reviews.toolId, toolId))
       .orderBy(desc(reviews.createdAt));
-    return result;
+    return result.map(r => ({ ...r, userAvatar: r.userAvatar || undefined }));
   }
 
   async getUserReview(userId: string, toolId: number): Promise<Review | undefined> {

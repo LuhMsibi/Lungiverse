@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Article Content Styling */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.prose table thead {
+  background-color: hsl(var(--muted));
+}
+
+.prose table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid hsl(var(--border));
+}
+
+.prose table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+}
+
+.prose table tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.prose table tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.dark .prose table thead {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.dark .prose table th,
+.dark .prose table td {
+  border-color: hsl(var(--border));
+}
+
+.dark .prose table tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.dark .prose table tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.4);
+}
+
 /* LIGHT MODE */
 :root {
   --button-outline: rgba(0,0,0, .10);

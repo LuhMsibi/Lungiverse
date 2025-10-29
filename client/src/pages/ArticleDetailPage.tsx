@@ -88,7 +88,7 @@ export default function ArticleDetailPage() {
                 <span>{article.readTime}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span>By {article.author.name}</span>
+                <span>By {article.authorName}</span>
               </div>
             </div>
           </div>

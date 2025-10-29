@@ -6,11 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/lib/authUtils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Trash2 } from "lucide-react";
+import type { Article } from "@shared/schema";
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -92,6 +93,31 @@ export default function AdminPage() {
     },
   });
 
+  const deleteArticleMutation = useMutation({
+    mutationFn: async (articleId: number) => {
+      return apiRequest(`/api/admin/articles/${articleId}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      toast({
+        title: "Success",
+        description: "Article deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete article",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { data: articles = [], isLoading: articlesLoading } = useQuery<Article[]>({
+    queryKey: ["/api/articles"],
+    enabled: user?.isAdmin === true,
+  });
+
   const handleToolSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -168,9 +194,10 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="tools" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="tools" data-testid="tab-tools">Add Tool</TabsTrigger>
           <TabsTrigger value="articles" data-testid="tab-articles">Add Article</TabsTrigger>
+          <TabsTrigger value="manage" data-testid="tab-manage">Manage Articles</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tools">
@@ -419,6 +446,54 @@ export default function AdminPage() {
                   )}
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="manage">
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Articles</CardTitle>
+              <CardDescription>View and delete existing articles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {articlesLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : articles.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No articles found</p>
+              ) : (
+                <div className="space-y-3">
+                  {articles.map((article) => (
+                    <div
+                      key={article.id}
+                      className="flex items-center justify-between p-4 border rounded-md hover-elevate"
+                      data-testid={`article-item-${article.id}`}
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-sm">{article.title}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {article.category} • {article.readTime} • {new Date(article.publishedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete "${article.title}"?`)) {
+                            deleteArticleMutation.mutate(article.id);
+                          }
+                        }}
+                        disabled={deleteArticleMutation.isPending}
+                        data-testid={`button-delete-article-${article.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
