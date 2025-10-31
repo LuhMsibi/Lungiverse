@@ -1,110 +1,15 @@
 import { db } from "./db";
 import { tools, articles } from "@shared/schema";
 
-// SVG placeholder images for articles
-const aiTransformImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(99,102,241);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(168,85,247);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad1)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">AI Transformation</text>
-  </svg>
-`).toString('base64');
-
-const aiToolsGuideImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(59,130,246);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(14,165,233);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad2)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">AI Tools Guide</text>
-  </svg>
-`).toString('base64');
-
-const fileConversionImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(34,197,94);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(22,163,74);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad3)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">File Conversion</text>
-  </svg>
-`).toString('base64');
-
-const aiProductivityImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(249,115,22);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(234,88,12);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad4)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">AI Productivity</text>
-  </svg>
-`).toString('base64');
-
-const futureAIImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(236,72,153);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(219,39,119);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad5)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">Future of AI</text>
-  </svg>
-`).toString('base64');
-
-const aiTrendsImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(139,92,246);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(124,58,237);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad6)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">Top AI Trends 2025</text>
-  </svg>
-`).toString('base64');
-
-const aiStocksImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad7" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(14,165,233);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(6,182,212);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad7)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">AI Stocks 2025</text>
-  </svg>
-`).toString('base64');
-
-const aiApplicationsImage = 'data:image/svg+xml;base64,' + Buffer.from(`
-  <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad8" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:rgb(16,185,129);stop-opacity:1" />
-        <stop offset="100%" style="stop-color:rgb(5,150,105);stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#grad8)"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="48" font-family="Arial, sans-serif" font-weight="bold">AI Applications 2025</text>
-  </svg>
-`).toString('base64');
+// Professional Unsplash images for articles
+const aiTransformImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=630';
+const aiToolsGuideImage = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=630';
+const fileConversionImage = 'https://images.unsplash.com/photo-1618060932014-4deda4932554?w=1200&h=630';
+const aiProductivityImage = 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=1200&h=630';
+const futureAIImage = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1200&h=630';
+const aiTrendsImage = 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630';
+const aiStocksImage = 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=630';
+const aiApplicationsImage = 'https://images.unsplash.com/photo-1677756119517-756a188d2d94?w=1200&h=630';
 
 export const toolsData = [
   // Conversion Tools
