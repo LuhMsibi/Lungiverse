@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import logoImage from "@assets/generated_images/Lungiverse_AI_platform_logo_8f2ec262.png";
 import { useAuth } from "@/lib/authUtils";
+import { signInWithGoogle, signOut as firebaseSignOut } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +28,39 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isLoading } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      toast({
+        title: "Welcome!",
+        description: "Successfully signed in with Google",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Failed to sign in",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await firebaseSignOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Logout failed",
+        description: error.message || "Failed to sign out",
+        variant: "destructive",
+      });
+    }
+  };
 
   const navigation = [
     { name: "Tools", href: "/tools" },
@@ -111,20 +146,16 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <a href="/api/logout" data-testid="button-logout">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                      </a>
+                    <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button asChild data-testid="button-login">
-                  <a href="/api/login">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Log in
-                  </a>
+                <Button onClick={handleLogin} data-testid="button-login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign in with Google
                 </Button>
               )
             )}
@@ -200,24 +231,22 @@ export function Header() {
                         variant="ghost"
                         size="lg"
                         className="w-full justify-start text-base mt-2"
-                        asChild
+                        onClick={handleLogout}
+                        data-testid="button-logout-mobile"
                       >
-                        <a href="/api/logout" data-testid="button-logout-mobile">
-                          <LogOut className="w-5 h-5 mr-3" />
-                          Log out
-                        </a>
+                        <LogOut className="w-5 h-5 mr-3" />
+                        Log out
                       </Button>
                     </div>
                   ) : (
                     <Button
                       size="lg"
                       className="w-full text-base"
-                      asChild
+                      onClick={handleLogin}
+                      data-testid="button-login-mobile"
                     >
-                      <a href="/api/login" data-testid="button-login-mobile">
-                        <LogIn className="w-5 h-5 mr-2" />
-                        Log in
-                      </a>
+                      <LogIn className="w-5 h-5 mr-2" />
+                      Sign in with Google
                     </Button>
                   )
                 )}
