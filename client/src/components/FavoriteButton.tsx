@@ -78,7 +78,7 @@ export function FavoriteButton({ toolId, variant = "ghost", showText = false }: 
     e.stopPropagation();
     
     if (!user) {
-      window.location.href = "/api/login";
+      window.location.href = "/login";
       return;
     }
     

@@ -8,13 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/lib/authUtils";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Trash2 } from "lucide-react";
 import type { Article } from "@shared/schema";
 
 export default function AdminPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useFirebaseAuth();
   const { toast } = useToast();
 
   // Tool form state
@@ -175,7 +175,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!user.isAdmin) {
+  if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>

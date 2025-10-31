@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import logoImage from "@assets/generated_images/Lungiverse_AI_platform_logo_8f2ec262.png";
-import { useAuth } from "@/lib/authUtils";
-import { signOut as firebaseSignOut } from "@/lib/firebase";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -27,13 +26,12 @@ export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, isLoading } = useAuth();
+  const { user, loading: isLoading, signOut } = useFirebaseAuth();
   const { toast } = useToast();
-
 
   const handleLogout = async () => {
     try {
-      await firebaseSignOut();
+      await signOut();
       toast({
         title: "Signed out",
         description: "You have been successfully signed out",
@@ -113,12 +111,12 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="gap-2" data-testid="button-user-menu">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.profileImage} alt={user.name} />
+                        <AvatarImage src={user.photoURL || undefined} alt={user.displayName || user.email || "User"} />
                         <AvatarFallback>
-                          {user.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
+                          {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="hidden sm:inline">{user.name}</span>
+                      <span className="hidden sm:inline">{user.displayName || user.email?.split('@')[0] || "User"}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
@@ -204,14 +202,14 @@ export function Header() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-muted/50">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.profileImage} alt={user.name} />
+                          <AvatarImage src={user.photoURL || undefined} alt={user.displayName || user.email || "User"} />
                           <AvatarFallback>
-                            {user.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
+                            {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          <span className="font-medium text-sm">{user.name}</span>
-                          <span className="text-xs text-muted-foreground">View Profile</span>
+                          <span className="font-medium text-sm">{user.displayName || user.email?.split('@')[0] || "User"}</span>
+                          <span className="text-xs text-muted-foreground">{user.email}</span>
                         </div>
                       </div>
                       <Button
