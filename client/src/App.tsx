@@ -19,12 +19,14 @@ import AdminSeedPage from "@/pages/AdminSeedPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfServicePage from "@/pages/TermsOfServicePage";
+import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/login" component={AuthPage} />
       <Route path="/tools" component={ToolsDirectory} />
       <Route path="/tool/:id" component={ToolDetailPage} />
       <Route path="/favorites" component={Favorites} />

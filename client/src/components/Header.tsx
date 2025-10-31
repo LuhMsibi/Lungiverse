@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import logoImage from "@assets/generated_images/Lungiverse_AI_platform_logo_8f2ec262.png";
 import { useAuth } from "@/lib/authUtils";
-import { signInWithGoogle, signOut as firebaseSignOut } from "@/lib/firebase";
+import { signOut as firebaseSignOut } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -30,21 +30,6 @@ export function Header() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
 
-  const handleLogin = async () => {
-    try {
-      await signInWithGoogle();
-      toast({
-        title: "Welcome!",
-        description: "Successfully signed in with Google",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message || "Failed to sign in",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -153,9 +138,11 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button onClick={handleLogin} data-testid="button-login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign in with Google
+                <Button asChild data-testid="button-login">
+                  <Link href="/login">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Link>
                 </Button>
               )
             )}
@@ -242,11 +229,13 @@ export function Header() {
                     <Button
                       size="lg"
                       className="w-full text-base"
-                      onClick={handleLogin}
+                      asChild
                       data-testid="button-login-mobile"
                     >
-                      <LogIn className="w-5 h-5 mr-2" />
-                      Sign in with Google
+                      <Link href="/login">
+                        <LogIn className="w-5 h-5 mr-2" />
+                        Sign In
+                      </Link>
                     </Button>
                   )
                 )}
