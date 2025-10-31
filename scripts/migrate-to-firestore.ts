@@ -11,12 +11,14 @@ import { neon } from "@neondatabase/serverless";
 import admin from "firebase-admin";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require(path.join(__dirname, "../firebase-config/serviceAccountKey.json"));
+const serviceAccountPath = path.join(__dirname, "../firebase-config/serviceAccountKey.json");
+const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf-8"));
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
