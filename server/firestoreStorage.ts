@@ -206,7 +206,161 @@ export class FirestoreStorage implements IStorage {
     }
   }
 
+  async isFavorited(userId: string, toolId: number): Promise<boolean> {
+    const snapshot = await this.db.collection("favorites")
+      .where("userId", "==", userId)
+      .where("toolId", "==", toolId)
+      .limit(1)
+      .get();
+    return !snapshot.empty;
+  }
+
+  // ============ SEARCH HISTORY ============
+
+  async addSearchHistory(userId: string, query: string): Promise<any> {
+    const snapshot = await this.db.collection("search_history").orderBy("id", "desc").limit(1).get();
+    const nextId = snapshot.empty ? 1 : (snapshot.docs[0].data().id + 1);
+    
+    const now = timestamp.now();
+    const newHistory = {
+      id: nextId,
+      userId,
+      query,
+      createdAt: now,
+    };
+    
+    await this.db.collection("search_history").doc(String(nextId)).set(newHistory);
+    return newHistory;
+  }
+
+  async getUserSearchHistory(userId: string, limit: number = 10): Promise<any[]> {
+    const snapshot = await this.db.collection("search_history")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .limit(limit)
+      .get();
+    return snapshot.docs.map(doc => doc.data());
+  }
+
+  async clearUserSearchHistory(userId: string): Promise<void> {
+    const snapshot = await this.db.collection("search_history")
+      .where("userId", "==", userId)
+      .get();
+    
+    const batch = this.db.batch();
+    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
+
+  // ============ ANALYTICS ============
+
+  async trackEvent(event: { toolId: number; eventType: string; userId: string | null; metadata: any }): Promise<void> {
+    const snapshot = await this.db.collection("analytics").orderBy("id", "desc").limit(1).get();
+    const nextId = snapshot.empty ? 1 : (snapshot.docs[0].data().id + 1);
+    
+    const now = timestamp.now();
+    const newEvent = {
+      id: nextId,
+      ...event,
+      createdAt: now,
+    };
+    
+    await this.db.collection("analytics").doc(String(nextId)).set(newEvent);
+  }
+
+  async incrementToolView(toolId: number): Promise<void> {
+    const toolRef = this.db.collection("tools").doc(String(toolId));
+    const doc = await toolRef.get();
+    if (doc.exists) {
+      await toolRef.update({
+        viewCount: (doc.data()?.viewCount || 0) + 1,
+      });
+    }
+  }
+
+  async incrementToolViewCount(toolId: number): Promise<void> {
+    return this.incrementToolView(toolId);
+  }
+
+  async incrementToolUsageCount(toolId: number): Promise<void> {
+    const toolRef = this.db.collection("tools").doc(String(toolId));
+    const doc = await toolRef.get();
+    if (doc.exists) {
+      await toolRef.update({
+        usageCount: (doc.data()?.usageCount || 0) + 1,
+      });
+    }
+  }
+
+  async getPopularTools(limit: number = 10): Promise<Tool[]> {
+    const snapshot = await this.db.collection("tools")
+      .orderBy("viewCount", "desc")
+      .limit(limit)
+      .get();
+    return snapshot.docs.map(doc => this.mapTool(doc.data()));
+  }
+
+  async getTrendingTools(limit: number = 10, daysSince: number = 7): Promise<Tool[]> {
+    // For simplicity, return most viewed tools
+    return this.getPopularTools(limit);
+  }
+
+  async getToolAnalytics(toolId: number): Promise<any> {
+    const tool = await this.getToolById(toolId);
+    return {
+      toolId,
+      viewCount: tool?.viewCount || 0,
+      usageCount: tool?.usageCount || 0,
+      averageRating: tool?.averageRating || 0,
+      reviewCount: tool?.reviewCount || 0,
+    };
+  }
+
   // ============ REVIEWS ============
+
+  async getUserReview(userId: string, toolId: number): Promise<Review | null> {
+    const snapshot = await this.db.collection("reviews")
+      .where("userId", "==", userId)
+      .where("toolId", "==", toolId)
+      .limit(1)
+      .get();
+    return snapshot.empty ? null : this.mapReview(snapshot.docs[0].data());
+  }
+
+  async addReview(userId: string, toolId: number, rating: number, comment: string): Promise<Review> {
+    return this.createReview({ userId, toolId, rating, comment });
+  }
+
+  async getToolReviews(toolId: number): Promise<Review[]> {
+    return this.getReviewsByTool(toolId);
+  }
+
+  async updateReview(reviewId: number, rating: number, comment: string): Promise<Review> {
+    const reviewRef = this.db.collection("reviews").doc(String(reviewId));
+    await reviewRef.update({ rating, comment });
+    const doc = await reviewRef.get();
+    if (!doc.exists) throw new Error("Review not found");
+    
+    // Update tool rating
+    const reviewData = doc.data();
+    await this.updateToolRating(reviewData.toolId);
+    
+    return this.mapReview(reviewData);
+  }
+
+  async deleteReview(reviewId: number): Promise<void> {
+    const reviewRef = this.db.collection("reviews").doc(String(reviewId));
+    const doc = await reviewRef.get();
+    if (!doc.exists) return;
+    
+    const toolId = doc.data()?.toolId;
+    await reviewRef.delete();
+    
+    // Update tool rating
+    if (toolId) {
+      await this.updateToolRating(toolId);
+    }
+  }
 
   async getReviewsByTool(toolId: number): Promise<Review[]> {
     const snapshot = await this.db.collection("reviews")

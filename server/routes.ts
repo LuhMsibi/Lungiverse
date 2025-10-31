@@ -72,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
         email: user.email,
         profileImage: user.profileImageUrl,
-        requireAdmin: user.requireAdmin || false,
+        isAdmin: user.isAdmin || false,
       });
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -134,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Favorites endpoints
   app.post("/api/favorites", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const { toolId } = req.body;
       
       if (!toolId || typeof toolId !== 'number') {
@@ -154,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/favorites/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const toolId = parseInt(req.params.toolId);
       
       if (isNaN(toolId)) {
@@ -171,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/favorites", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const tools = await storage.getUserFavorites(userId);
       res.json(tools.map(transformTool));
     } catch (error) {
@@ -182,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/favorites/check/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const toolId = parseInt(req.params.toolId);
       
       if (isNaN(toolId)) {
@@ -200,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Search history endpoints
   app.post("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const { query } = req.body;
       
       if (!query || typeof query !== 'string') {
@@ -217,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const limit = parseInt(req.query.limit as string) || 10;
       const history = await storage.getUserSearchHistory(userId, limit);
       res.json(history);
@@ -229,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       await storage.clearUserSearchHistory(userId);
       res.json({ success: true });
     } catch (error) {
@@ -308,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Review endpoints
   app.post("/api/reviews", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const { toolId, rating, comment } = req.body;
 
       if (!toolId || typeof toolId !== 'number') {
@@ -348,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/reviews/user/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const toolId = parseInt(req.params.toolId);
       if (isNaN(toolId)) {
         return res.status(400).json({ error: "Invalid toolId" });
@@ -364,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/reviews/:reviewId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const reviewId = parseInt(req.params.reviewId);
       const { rating, comment } = req.body;
 
@@ -393,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/reviews/:reviewId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.uid;
       const reviewId = parseInt(req.params.reviewId);
 
       if (isNaN(reviewId)) {

@@ -4,11 +4,6 @@
  */
 
 import admin from "firebase-admin";
-import * as path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let firebaseApp: admin.app.App;
 
@@ -18,13 +13,24 @@ export function initializeFirebaseAdmin() {
   }
 
   try {
-    // Try to load service account from file (for local development and deployment)
-    const serviceAccountPath = path.join(__dirname, "../firebase-config/serviceAccountKey.json");
-    const serviceAccount = require(serviceAccountPath);
+    // Initialize Firebase Admin with environment variables
+    const projectId = process.env.FIREBASE_PROJECT_ID || "lungiverse-75fe3";
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+    if (!clientEmail || !privateKey) {
+      throw new Error(
+        "Firebase credentials not found. Please set FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY environment variables."
+      );
+    }
 
     firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      projectId: "lungiverse-75fe3",
+      credential: admin.credential.cert({
+        projectId,
+        clientEmail,
+        privateKey,
+      }),
+      projectId,
     });
 
     console.log("✅ Firebase Admin SDK initialized successfully");
