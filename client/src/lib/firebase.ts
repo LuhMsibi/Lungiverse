@@ -129,4 +129,9 @@ export function onAuthChange(callback: (user: FirebaseUser | null) => void) {
   return onAuthStateChanged(auth, callback);
 }
 
+// Expose auth to window for console debugging (development only)
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  (window as any).firebaseAuth = auth;
+}
+
 export default app;
