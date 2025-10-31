@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 
 interface FavoriteButtonProps {
   toolId: string;
@@ -13,7 +13,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ toolId, variant = "ghost", showText = false }: FavoriteButtonProps) {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const numericToolId = parseInt(toolId);
   
   const { data: favoriteStatus } = useQuery<{ isFavorited: boolean }>({

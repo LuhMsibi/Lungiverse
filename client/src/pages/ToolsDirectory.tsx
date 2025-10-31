@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Search, SlidersHorizontal, Clock, X } from "lucide-react";
 import { ToolCard } from "@/components/ToolCard";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import type { AITool, ToolCategory, SearchHistory } from "@shared/schema";
 import { toolCategories } from "@shared/schema";
 
@@ -16,7 +16,7 @@ export default function ToolsDirectory() {
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory>("All Tools");
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
 
   const { data: tools = [], isLoading } = useQuery<AITool[]>({
     queryKey: ["/api/tools"],

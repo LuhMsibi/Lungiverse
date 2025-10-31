@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Check, Star } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
 import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import type { AITool } from "@shared/schema";
@@ -15,7 +15,7 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ tool, featured = false }: ToolCardProps) {
-  const { user } = useAuth();
+  const { user } = useFirebaseAuth();
   const cardRef = useRef<HTMLDivElement>(null);
   const [viewTracked, setViewTracked] = useState(false);
 

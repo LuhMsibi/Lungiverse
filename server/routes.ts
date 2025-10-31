@@ -1,7 +1,7 @@
 import type { Express} from "express";
 import { createServer, type Server } from "http";
 import { FirestoreStorage } from "./firestoreStorage";
-import { verifyFirebaseToken, requireAuth, requireAdmin, type AuthenticatedRequest } from "./firebaseAuth";
+import { verifyFirebaseToken, requireAuth, requireAdmin, setAdminClaim, type AuthenticatedRequest } from "./firebaseAuth";
 import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
 
 // Initialize Firestore storage
@@ -77,6 +77,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // TEMPORARY ENDPOINT: Make yourself admin
+  // This endpoint allows any logged-in user to give themselves admin privileges
+  // SECURITY NOTE: Remove this endpoint in production! It's only for initial setup.
+  app.post('/api/auth/make-me-admin', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.uid;
+      const userEmail = req.user!.email;
+      
+      // Set custom admin claim on the Firebase token
+      await setAdminClaim(userId, true);
+      
+      console.log(`✅ Admin privileges granted to user: ${userEmail} (${userId})`);
+      
+      res.json({ 
+        success: true, 
+        message: "Admin privileges granted! Please sign out and sign back in for changes to take effect.",
+        requiresReAuth: true
+      });
+    } catch (error) {
+      console.error("Error granting admin privileges:", error);
+      res.status(500).json({ error: "Failed to grant admin privileges" });
     }
   });
   
