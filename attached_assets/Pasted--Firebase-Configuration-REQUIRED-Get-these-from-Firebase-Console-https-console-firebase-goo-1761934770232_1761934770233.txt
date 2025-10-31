@@ -1,0 +1,26 @@
+# Firebase Configuration (REQUIRED)
+# Get these from Firebase Console: https://console.firebase.google.com/
+
+# Database URL is NOT needed for Firebase version
+# DATABASE_URL=your-database-url-here
+
+# Session secret for Express sessions (generate a random string)
+SESSION_SECRET=your-random-session-secret-here-change-this-in-production
+
+# Firebase service account path (for backend)
+# Place your serviceAccountKey.json in firebase-config/ directory
+FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-config/serviceAccountKey.json
+
+# Your domain (for CORS and auth)
+DOMAIN=lungiverse.com
+
+# Node environment
+NODE_ENV=production
+
+# Optional: Port for backend server (default: 5000)
+PORT=5000
+
+
+FIREBASE_PROJECT_ID="lungiverse-75fe3"
+FIREBASE_CLIENT_EMAIL="firebase-adminsdk-fbsvc@lungiverse-75fe3.iam.gserviceaccount.com"
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC5OLJGy19aSbqG\nMOa5DDsYXMfo+LN8xvZIxZixvxAvWCorelEmLRD6iMPPxY13l+/cCkO9jYFe+33K\nWHS50+U5aYW6TGe3qIx1cArW5eqm1+N7gX6WQQFJExdvACTcJmM8/pXk4Jz2QRPK\nVNfKEVL7+v6GW+oT0XJ0Agj6nRSibT79UVpnkGaK5jfzEjz1574i6d0eeGe5ajAL\nRJNnky+1GuhlJqfwofNMv3aAkSFwDfkclFIVUQ/vmIq0XlygudoG2vCmizHt39+O\n4NZziFRQeXHPLqAdPoSeSGfe5nrEjiw7a0B9oUoJkrv0Vbjkizm8wLY60q8jl6Bf\nshoIaD4jAgMBAAECggEABS3VKk6YeXVTTlpCsUzqwBkkC9scZbJIg6tmxB2UDcbY\n0wNmDnu3HFJDq2UaOgxZDB2LXFr/EZFVqJlFlkabA7p0H0vwoH2Jg+UgoHaoU4b4\n2OS7jeb+arUqdBOcdD1si/GQbmhrayVRsNgjeoZ2fA4+HLKoPmqeWSkPaDaJM6tv\nHxUQkEkDrKFDeXh1FuT/WJWy8xABRVmiZkGMdIOBm0tki+i2pD0ctwopGXIaWJi6\nqrmavE8Z9UkEF/Vj6+r+GzHi5uNcPf16yKJLA+QJDOnYmkR1Rd+OYDYwZZgW4202\nVggbCLJYIn9rAFKFgtSKZGrZ9JUxIH1Qrtj6F/rK8QKBgQDrW1AhNp3LrPJxt6CF\n1oOSbxR33re3MsqZ+1rEJ3Uvw0KzfreTierUf1cKSE4l/hgrFGWu29xsnjuBjb77\nFcw16sSBy7VyGKKeGzImAg/RQwWSGNWZUnS5M562MzKFd4XSGVllhv7RQ5sdtvxJ\nZsg4NaRswDqYDaQ5sxir8PST0wKBgQDJd6ZUCNfJyTcqOX93plRH+u88NekEKA9P\nqzJsizYUya5RotpK0i3NRCuQYx8J4FADnP6WGtB0C5ZCgE/oluJ2MS7v1E1iUyXR\nU64t8BoDX8AT8bYzYUTV21Jdz6128K1NCX2f5eM/B4yJz1UgyoUEm2cdNAZsfKNm\nF7oO5GhKcQKBgByFdlJwEfNKxB6vyA4wDsXCHFLidJUI3LCIW1mGBpeBLCYgZxLE\nFecmf1/Jn17PShJ+aEwmbLHlAwUSLmCzJYorJyErlJN9FMfgN9WPTmdnndc0lz37\nVhXTgZpG3gp6j4cEd2bsUxj8/mE9eZlTkVPufDyJlxAyJwKvB4BetOTtAoGAT1xq\nkL/LARnaOS/dHmzO1mvqwXUbDSAap+9wNYHBE/8+Q7o68y5IDIvF/WKOX32VB1dY\nkhiN9Kh70EZrM9v76UMGkkK3GPxX8VVdT4s9NAcLys90TlkKnJOApqOgWTIFkksi\nyVHtam621bJufjRIob/1pnNP9HxEgXrnN+aRjoECgYBwBqJN0gV2O8niPicDSzq7\nuKUWCmKI0bXq7SsrsQUu/Vfx1nUnKKLtQCBcaDViGlLU7J0u0kwyQLTI6cz05Uil\ngNiCBs+oSEtepzNnLkwLyVPjzeBFRDESvckmp8QXj5UV1PmICwg38MeEjw89Qk79\nwJqf5q0b5t7v02k5Vf/2Dg==\n-----END PRIVATE KEY-----\n"
