@@ -3,9 +3,13 @@
  * Replaces dbStorage.ts - provides all CRUD operations using Firebase Firestore
  */
 
+import admin from "firebase-admin";
 import { firestore, timestamp } from "./firebaseAdmin";
 import type { IStorage } from "./storage";
 import type { Tool, Article, User, Favorite, Review } from "@shared/schema";
+
+// Import FieldValue for increment operations
+const FieldValue = admin.firestore.FieldValue;
 
 export class FirestoreStorage implements IStorage {
   private db = firestore;
@@ -59,7 +63,7 @@ export class FirestoreStorage implements IStorage {
   async incrementToolView(id: number): Promise<void> {
     const docRef = this.db.collection("tools").doc(String(id));
     await docRef.update({
-      viewCount: firestore.FieldValue.increment(1),
+      viewCount: FieldValue.increment(1),
     });
   }
 
