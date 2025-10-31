@@ -16,6 +16,7 @@ import AboutPage from "@/pages/AboutPage";
 import Favorites from "@/pages/Favorites";
 import AdminPage from "@/pages/AdminPage";
 import AdminSeedPage from "@/pages/AdminSeedPage";
+import MakeAdminPage from "@/pages/MakeAdminPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfServicePage from "@/pages/TermsOfServicePage";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/terms" component={TermsOfServicePage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin/seed" component={AdminSeedPage} />
+      <Route path="/setup-admin" component={MakeAdminPage} />
       <Route component={NotFound} />
     </Switch>
   );

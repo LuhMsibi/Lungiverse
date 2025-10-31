@@ -92,13 +92,15 @@ export default function Favorites() {
                   <p className="text-sm text-muted-foreground line-clamp-3">
                     {tool.description}
                   </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {tool.features.slice(0, 3).map((feature, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
-                        {feature}
-                      </Badge>
-                    ))}
-                  </div>
+                  {tool.features && tool.features.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {tool.features.slice(0, 3).map((feature, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="flex items-center justify-between gap-2 pt-4">
                   <div className="flex gap-2">
