@@ -30,7 +30,7 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
             apiRequest("/api/analytics/track", "POST", {
               toolId: parseInt(tool.id),
               eventType: "view",
-              userId: user?.id || null,
+              userId: user?.uid || null,
             }).catch(() => {});
           }
         });
@@ -43,13 +43,13 @@ export function ToolCard({ tool, featured = false }: ToolCardProps) {
     return () => {
       observer.disconnect();
     };
-  }, [tool.id, user?.id, viewTracked]);
+  }, [tool.id, user?.uid, viewTracked]);
 
   const trackClick = () => {
     apiRequest("/api/analytics/track", "POST", {
       toolId: parseInt(tool.id),
       eventType: "click",
-      userId: user?.id || null,
+      userId: user?.uid || null,
     }).catch(() => {});
   };
 
