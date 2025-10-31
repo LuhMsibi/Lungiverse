@@ -1,8 +1,11 @@
 import type { Express} from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./dbStorage";
-import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { FirestoreStorage } from "./firestoreStorage";
+import { verifyFirebaseToken, requireAuth, requireAdmin, type AuthenticatedRequest } from "./firebaseAuth";
 import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
+
+// Initialize Firestore storage
+const storage = new FirestoreStorage();
 import OpenAI from "openai";
 import { seedDatabase } from "./seedData";
 
@@ -51,14 +54,14 @@ function transformTool(tool: Tool): AITool & { averageRating?: number; reviewCou
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup authentication
-  await setupAuth(app);
+  // Apply Firebase auth middleware globally
+  app.use(verifyFirebaseToken);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userId = req.user!.uid;
+      const user = await storage.getUserById(userId);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -69,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'User',
         email: user.email,
         profileImage: user.profileImageUrl,
-        isAdmin: user.isAdmin || false,
+        requireAdmin: user.requireAdmin || false,
       });
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -129,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favorites endpoints
-  app.post("/api/favorites", isAuthenticated, async (req: any, res) => {
+  app.post("/api/favorites", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const { toolId } = req.body;
@@ -149,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/favorites/:toolId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/favorites/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const toolId = parseInt(req.params.toolId);
@@ -166,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/favorites", isAuthenticated, async (req: any, res) => {
+  app.get("/api/favorites", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const tools = await storage.getUserFavorites(userId);
@@ -177,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/favorites/check/:toolId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/favorites/check/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const toolId = parseInt(req.params.toolId);
@@ -195,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Search history endpoints
-  app.post("/api/search-history", isAuthenticated, async (req: any, res) => {
+  app.post("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const { query } = req.body;
@@ -212,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/search-history", isAuthenticated, async (req: any, res) => {
+  app.get("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -224,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/search-history", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/search-history", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       await storage.clearUserSearchHistory(userId);
@@ -303,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Review endpoints
-  app.post("/api/reviews", isAuthenticated, async (req: any, res) => {
+  app.post("/api/reviews", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const { toolId, rating, comment } = req.body;
@@ -343,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/reviews/user/:toolId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/reviews/user/:toolId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const toolId = parseInt(req.params.toolId);
@@ -359,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/reviews/:reviewId", isAuthenticated, async (req: any, res) => {
+  app.put("/api/reviews/:reviewId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const reviewId = parseInt(req.params.reviewId);
@@ -388,7 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/reviews/:reviewId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/reviews/:reviewId", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = req.user.claims.sub;
       const reviewId = parseInt(req.params.reviewId);
@@ -533,7 +536,7 @@ Keep responses concise and actionable.`,
   });
 
   // Admin endpoints
-  app.post("/api/admin/tools", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/tools", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const { name, description, category, features, isPaid, requiresAPI, url } = req.body;
       
@@ -558,7 +561,7 @@ Keep responses concise and actionable.`,
     }
   });
 
-  app.post("/api/admin/articles", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/articles", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const { title, slug, excerpt, content, coverImage, category, authorName, authorAvatar, readTime, tags } = req.body;
       
@@ -586,7 +589,7 @@ Keep responses concise and actionable.`,
     }
   });
 
-  app.delete("/api/admin/articles/:id", isAdmin, async (req: any, res) => {
+  app.delete("/api/admin/articles/:id", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const articleId = parseInt(req.params.id);
       if (isNaN(articleId)) {
@@ -601,7 +604,7 @@ Keep responses concise and actionable.`,
     }
   });
 
-  app.post("/api/admin/seed", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/seed", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       console.log("🌱 Starting database seed from admin endpoint...");
       const result = await seedDatabase();

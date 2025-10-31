@@ -12,19 +12,23 @@ export class FirestoreStorage implements IStorage {
 
   // ============ TOOLS ============
 
-  async getTools(): Promise<Tool[]> {
+  async getAllTools(): Promise<Tool[]> {
     const snapshot = await this.db.collection("tools").orderBy("id").get();
     return snapshot.docs.map(doc => this.mapTool(doc.data()));
   }
 
-  async getToolById(id: number): Promise<Tool | null> {
+  async getTools(): Promise<Tool[]> {
+    return this.getAllTools();
+  }
+
+  async getToolById(id: number | string): Promise<Tool | null> {
     const doc = await this.db.collection("tools").doc(String(id)).get();
     if (!doc.exists) return null;
     return this.mapTool(doc.data());
   }
 
   async searchTools(query: string): Promise<Tool[]> {
-    const tools = await this.getTools();
+    const tools = await this.getAllTools();
     const lowerQuery = query.toLowerCase();
     
     return tools.filter(tool =>
@@ -61,11 +65,15 @@ export class FirestoreStorage implements IStorage {
 
   // ============ ARTICLES ============
 
-  async getArticles(): Promise<Article[]> {
+  async getAllArticles(): Promise<Article[]> {
     const snapshot = await this.db.collection("articles")
       .orderBy("publishedAt", "desc")
       .get();
     return snapshot.docs.map(doc => this.mapArticle(doc.data()));
+  }
+
+  async getArticles(): Promise<Article[]> {
+    return this.getAllArticles();
   }
 
   async getArticleBySlug(slug: string): Promise<Article | null> {
@@ -147,11 +155,15 @@ export class FirestoreStorage implements IStorage {
 
   // ============ FAVORITES ============
 
-  async getFavorites(userId: string): Promise<Favorite[]> {
+  async getUserFavorites(userId: string): Promise<Favorite[]> {
     const snapshot = await this.db.collection("favorites")
       .where("userId", "==", userId)
       .get();
     return snapshot.docs.map(doc => this.mapFavorite(doc.data()));
+  }
+
+  async getFavorites(userId: string): Promise<Favorite[]> {
+    return this.getUserFavorites(userId);
   }
 
   async addFavorite(userId: string, toolId: number): Promise<Favorite> {
