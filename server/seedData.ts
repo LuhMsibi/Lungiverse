@@ -7,7 +7,7 @@ import { toolsData, articlesData } from "./seed";
 
 /**
  * Seeds the database with AI tools and articles.
- * Safe to run multiple times - uses onConflictDoNothing() to prevent duplicates.
+ * Safe to run multiple times - inserts new tools and updates existing articles with latest data.
  * Returns statistics about what was processed.
  */
 export async function seedDatabase() {
@@ -31,17 +31,33 @@ export async function seedDatabase() {
     }
   }
   
-  // Insert articles with conflict handling
+  // Insert or update articles with conflict handling
   for (const article of articlesData) {
     try {
-      const result = await db.insert(articles).values(article).onConflictDoNothing().returning();
+      const result = await db.insert(articles)
+        .values(article)
+        .onConflictDoUpdate({
+          target: articles.slug,
+          set: {
+            title: article.title,
+            excerpt: article.excerpt,
+            content: article.content,
+            coverImage: article.coverImage,
+            category: article.category,
+            authorName: article.authorName,
+            authorAvatar: article.authorAvatar,
+            publishedAt: article.publishedAt,
+            readTime: article.readTime,
+            tags: article.tags,
+          }
+        })
+        .returning();
+      
       if (result.length > 0) {
         articlesInserted++;
-      } else {
-        articlesSkipped++;
       }
     } catch (error) {
-      console.error(`Error inserting article ${article.title}:`, error);
+      console.error(`Error inserting/updating article ${article.title}:`, error);
       articlesSkipped++;
     }
   }

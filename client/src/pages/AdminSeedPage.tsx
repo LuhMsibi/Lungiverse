@@ -102,7 +102,7 @@ export default function AdminSeedPage() {
                         ✓ Tools: {result.toolsInserted} new, {result.toolsSkipped} already existed ({result.toolsTotal} total)
                       </p>
                       <p data-testid="text-articles-seeded">
-                        ✓ Articles: {result.articlesInserted} new, {result.articlesSkipped} already existed ({result.articlesTotal} total)
+                        ✓ Articles: {result.articlesInserted} synced/updated ({result.articlesTotal} total)
                       </p>
                     </div>
                   </div>
