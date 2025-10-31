@@ -13,7 +13,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ toolId, variant = "ghost", showText = false }: FavoriteButtonProps) {
   const { toast } = useToast();
-  const { user } = useFirebaseAuth();
+  const { user, loading } = useFirebaseAuth();
   const numericToolId = parseInt(toolId);
   
   const { data: favoriteStatus } = useQuery<{ isFavorited: boolean }>({
@@ -77,8 +77,20 @@ export function FavoriteButton({ toolId, variant = "ghost", showText = false }: 
     e.preventDefault();
     e.stopPropagation();
     
+    // Don't do anything while auth is loading
+    if (loading) {
+      return;
+    }
+    
     if (!user) {
-      window.location.href = "/login";
+      toast({
+        title: "Login required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
       return;
     }
     
@@ -89,7 +101,7 @@ export function FavoriteButton({ toolId, variant = "ghost", showText = false }: 
     }
   };
 
-  const isLoading = addFavorite.isPending || removeFavorite.isPending;
+  const isLoading = addFavorite.isPending || removeFavorite.isPending || loading;
 
   return (
     <Button
