@@ -272,16 +272,6 @@ export class FirestoreStorage implements IStorage {
     await this.db.collection("analytics").doc(String(nextId)).set(newEvent);
   }
 
-  async incrementToolView(toolId: number): Promise<void> {
-    const toolRef = this.db.collection("tools").doc(String(toolId));
-    const doc = await toolRef.get();
-    if (doc.exists) {
-      await toolRef.update({
-        viewCount: (doc.data()?.viewCount || 0) + 1,
-      });
-    }
-  }
-
   async incrementToolViewCount(toolId: number): Promise<void> {
     return this.incrementToolView(toolId);
   }

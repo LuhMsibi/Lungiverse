@@ -1,0 +1,39 @@
+ npm run build
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.20 building for production...
+transforming (2) ..\vite\modulepreload-polyfill.jsBrowserslist: browsers data (caniuse-lite) is 13 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+transforming (7) src\lib\queryClient.ts
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 1882 modules transformed.
+../dist/public/index.html                                                  2.54 kB │ gzip:   1.03 kB
+../dist/public/assets/Lungiverse_AI_platform_logo_8f2ec262-B1SPJaar.png  406.57 kB
+../dist/public/assets/index-CqvZ7KNd.css                                 104.41 kB │ gzip:  16.03 kB
+../dist/public/assets/index-BcJs1qz2.js                                  813.02 kB │ gzip: 223.90 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks    
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 25.24s
+▲ [WARNING] Duplicate member "incrementToolView" in class body [duplicate-class-member]
+
+    server/firestoreStorage.ts:275:8:
+      275 │   async incrementToolView(toolId: number): Promise<void> {
+          ╵         ~~~~~~~~~~~~~~~~~
+
+  The original member "incrementToolView" is here:
+
+    server/firestoreStorage.ts:63:8:
+      63 │   async incrementToolView(id: number): Promise<void> {
+         ╵         ~~~~~~~~~~~~~~~~~
+
+1 warning
+
+  dist\index.js  78.8kb
+
+Done in 87ms
