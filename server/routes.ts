@@ -7,7 +7,7 @@ import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AI
 // Initialize Firestore storage
 const storage = new FirestoreStorage();
 import OpenAI from "openai";
-import { seedDatabase } from "./seedData";
+import { seedFirestoreDatabase } from "./seedFirestore";
 
 // Using Replit's AI Integrations service for OpenAI - reference: blueprint:javascript_openai_ai_integrations
 // The newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
@@ -630,18 +630,18 @@ Keep responses concise and actionable.`,
 
   app.post("/api/admin/seed", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      console.log("🌱 Starting database seed from admin endpoint...");
-      const result = await seedDatabase();
-      console.log("✅ Database seeding complete:", result);
+      console.log("🌱 Starting Firestore database seed from admin endpoint...");
+      const result = await seedFirestoreDatabase();
+      console.log("✅ Firestore database seeding complete:", result);
       res.json({
         success: true,
-        message: "Database seeded successfully",
+        message: "Firestore database seeded successfully",
         ...result,
       });
     } catch (error) {
-      console.error("❌ Error seeding database:", error);
+      console.error("❌ Error seeding Firestore database:", error);
       res.status(500).json({ 
-        error: "Failed to seed database", 
+        error: "Failed to seed Firestore database", 
         details: error instanceof Error ? error.message : String(error)
       });
     }
