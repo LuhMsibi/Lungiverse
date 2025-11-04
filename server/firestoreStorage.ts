@@ -159,14 +159,32 @@ export class FirestoreStorage implements IStorage {
 
   // ============ FAVORITES ============
 
-  async getUserFavorites(userId: string): Promise<Favorite[]> {
-    const snapshot = await this.db.collection("favorites")
+  async getUserFavorites(userId: string): Promise<Tool[]> {
+    // Get all favorite records for this user
+    const favoritesSnapshot = await this.db.collection("favorites")
       .where("userId", "==", userId)
       .get();
-    return snapshot.docs.map(doc => this.mapFavorite(doc.data()));
+    
+    // Extract tool IDs
+    const toolIds = favoritesSnapshot.docs.map(doc => doc.data().toolId);
+    
+    if (toolIds.length === 0) {
+      return [];
+    }
+    
+    // Fetch all tools for these IDs
+    const tools: Tool[] = [];
+    for (const toolId of toolIds) {
+      const tool = await this.getToolById(toolId);
+      if (tool) {
+        tools.push(tool);
+      }
+    }
+    
+    return tools;
   }
 
-  async getFavorites(userId: string): Promise<Favorite[]> {
+  async getFavorites(userId: string): Promise<Tool[]> {
     return this.getUserFavorites(userId);
   }
 

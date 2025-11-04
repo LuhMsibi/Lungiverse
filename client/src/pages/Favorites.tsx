@@ -1,14 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { AITool } from "@shared/schema";
 
 export default function Favorites() {
+  const { toast } = useToast();
   const { data: favorites, isLoading } = useQuery<AITool[]>({
     queryKey: ["/api/favorites"],
+  });
+
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (toolId: string) => {
+      return apiRequest(`/api/favorites/${toolId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/favorites"] });
+      toast({
+        title: "Removed from favorites",
+        description: "Tool has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove from favorites",
+        variant: "destructive",
+      });
+    },
   });
 
   if (isLoading) {
@@ -87,6 +112,15 @@ export default function Favorites() {
                       </Badge>
                     </CardDescription>
                   </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => removeFavoriteMutation.mutate(tool.id)}
+                    disabled={removeFavoriteMutation.isPending}
+                    data-testid={`button-remove-${tool.id}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground line-clamp-3">
