@@ -16,9 +16,8 @@ export default function Favorites() {
 
   const removeFavoriteMutation = useMutation({
     mutationFn: async (toolId: string) => {
-      return apiRequest(`/api/favorites/${toolId}`, {
-        method: "DELETE",
-      });
+      const response = await apiRequest(`/api/favorites/${toolId}`, "DELETE");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/favorites"] });
