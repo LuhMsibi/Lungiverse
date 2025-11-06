@@ -117,7 +117,17 @@ export default function AdminPage() {
 
   const { data: articles = [], isLoading: articlesLoading } = useQuery<ArticleLegacy[]>({
     queryKey: ["/api/articles"],
-    enabled: user?.isAdmin === true,
+    // Temporarily disabled admin check for testing
+    // enabled: user?.isAdmin === true,
+  });
+
+  // Debug logging
+  console.log("Admin Page Debug:", {
+    user: user,
+    isAdmin: isAdmin,
+    userIsAdmin: user?.isAdmin,
+    articlesCount: articles.length,
+    articlesLoading,
   });
 
   const handleToolSubmit = (e: React.FormEvent) => {
