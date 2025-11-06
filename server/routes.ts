@@ -6,15 +6,8 @@ import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AI
 
 // Initialize Firestore storage
 const storage = new FirestoreStorage();
-import OpenAI from "openai";
 import { seedFirestoreDatabase } from "./seedFirestore";
-
-// Using Replit's AI Integrations service for OpenAI - reference: blueprint:javascript_openai_ai_integrations
-// The newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-});
+import { generateChatResponse, type ChatMessage } from "./gemini";
 
 // Transform DB Article to frontend-expected format
 function transformArticle(article: Article): ArticleLegacy {
@@ -440,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Chatbot endpoint
+  // Chatbot endpoint - Now using Google Gemini API via Replit AI Integrations (FREE!)
   app.post("/api/chat", async (req, res) => {
     try {
       const validationResult = chatRequestSchema.safeParse(req.body);
@@ -461,11 +454,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `${t.name} (${t.category}): ${t.description}`
       ).join('\n');
 
-      // Build conversation messages
-      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        {
-          role: "system",
-          content: `You are a helpful AI assistant for Lungiverse, a platform that helps users discover and choose AI tools. Your role is to:
+      // System prompt for Gemini
+      const systemPrompt = `You are a helpful AI assistant for Lungiverse, a platform that helps users discover and choose AI tools. Your role is to:
 
 1. Understand user needs and recommend appropriate AI tools from our catalog
 2. Provide clear, concise information about tools and their capabilities
@@ -482,33 +472,25 @@ When recommending tools:
 - Recommend 2-3 tools when appropriate, not just one
 - Be honest about limitations
 
-Keep responses concise and actionable.`,
-        },
-        ...conversationHistory.map(msg => ({
-          role: msg.role,
-          content: msg.content,
-        })),
+Keep responses concise and actionable.`;
+
+      // Convert conversation history to Gemini format
+      const messages: ChatMessage[] = [
+        ...conversationHistory,
         {
           role: "user",
           content: message,
         },
       ];
 
-      // Call OpenAI API
-      console.log("Calling OpenAI API with model: gpt-4.1");
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4.1", // Using gpt-4.1 for reliable responses
-        messages,
-        max_tokens: 1000, // Increased token limit for complete responses
-      });
+      // Call Gemini API
+      console.log("Calling Gemini API with model: gemini-2.5-flash");
+      const assistantMessage = await generateChatResponse(messages, systemPrompt);
 
-      console.log("OpenAI response received:", {
-        choices: completion.choices?.length,
-        hasContent: !!completion.choices?.[0]?.message?.content,
-        finishReason: completion.choices?.[0]?.finish_reason
+      console.log("Gemini response received:", {
+        hasContent: !!assistantMessage,
+        length: assistantMessage.length
       });
-
-      const assistantMessage = completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
 
       // Extract tool names mentioned in the response for suggested tools
       const suggestedTools = tools
