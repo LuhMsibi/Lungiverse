@@ -128,6 +128,7 @@ export default function AdminPage() {
     userIsAdmin: user?.isAdmin,
     articlesCount: articles.length,
     articlesLoading,
+    articles: articles,
   });
 
   const handleToolSubmit = (e: React.FormEvent) => {
