@@ -11,7 +11,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Trash2 } from "lucide-react";
-import type { Article } from "@shared/schema";
+import type { ArticleLegacy } from "@shared/schema";
 
 export default function AdminPage() {
   const { user, isAdmin, loading: authLoading } = useFirebaseAuth();
@@ -96,7 +96,7 @@ export default function AdminPage() {
   });
 
   const deleteArticleMutation = useMutation({
-    mutationFn: async (articleId: number) => {
+    mutationFn: async (articleId: string) => {
       return apiRequest(`/api/admin/articles/${articleId}`, "DELETE");
     },
     onSuccess: () => {
@@ -115,7 +115,7 @@ export default function AdminPage() {
     },
   });
 
-  const { data: articles = [], isLoading: articlesLoading } = useQuery<Article[]>({
+  const { data: articles = [], isLoading: articlesLoading } = useQuery<ArticleLegacy[]>({
     queryKey: ["/api/articles"],
     enabled: user?.isAdmin === true,
   });
