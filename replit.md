@@ -101,7 +101,7 @@ The production database does NOT automatically copy data from development. To ad
 - TypeScript with ESM modules
 - PostgreSQL database with Drizzle ORM
 - Neon Serverless PostgreSQL driver
-- Google Gemini API integration via Replit AI Integrations service (FREE!)
+- Google Gemini API (direct integration with user's own API key)
 
 **API Design:**
 - RESTful endpoints under `/api` prefix
@@ -199,10 +199,11 @@ The production database does NOT automatically copy data from development. To ad
 - **Lucide React** - Icon library used throughout the application
 
 ### AI Services
-- **Google Gemini API** - Used for chatbot functionality via Replit AI Integrations (FREE!)
-- Configuration uses environment variables: `AI_INTEGRATIONS_GEMINI_BASE_URL` and `AI_INTEGRATIONS_GEMINI_API_KEY`
+- **Google Gemini API** - Direct integration using user's own Google API key (FREE!)
+- Configuration uses environment variable: `GEMINI_API_KEY`
 - Currently configured to use Gemini 2.5 Flash model (fast, high-quality)
-- Free tier: 1,500 requests per day through Replit AI Integrations (billed to Replit credits)
+- Free tier: 1,500 requests per day directly from Google (no Replit billing)
+- Get your free API key: https://aistudio.google.com/app/apikey
 - Implementation: `server/gemini.ts` provides chat generation functions
 
 ### Form and Validation

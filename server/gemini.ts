@@ -1,12 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
-// This is using Replit's AI Integrations service, which provides Gemini-compatible API access without requiring your own Gemini API key.
+// Direct Google Gemini API integration - uses your own Google API key
+// Get your free API key from: https://aistudio.google.com/app/apikey
 const ai = new GoogleGenAI({
-  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY || "",
-  httpOptions: {
-    apiVersion: "",
-    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL || "",
-  },
+  apiKey: process.env.GEMINI_API_KEY || "",
 });
 
 export interface ChatMessage {
