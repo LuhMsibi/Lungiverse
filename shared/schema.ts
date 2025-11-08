@@ -216,6 +216,31 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 
+// Interactive Models Table (Hugging Face AI models users can interact with)
+export const interactiveModels = pgTable("interactive_models", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  modelId: varchar("model_id", { length: 500 }).notNull(), // Hugging Face model ID
+  category: varchar("category", { length: 50 }).notNull(),
+  task: varchar("task", { length: 100 }).notNull(), // e.g., "text-generation", "summarization"
+  description: text("description").notNull(),
+  externalUrl: varchar("external_url", { length: 500 }).notNull(),
+  usageCount: integer("usage_count").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  featured: boolean("featured").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertInteractiveModelSchema = createInsertSchema(interactiveModels).omit({ 
+  id: true, 
+  usageCount: true,
+  createdAt: true, 
+  updatedAt: true 
+});
+export type InsertInteractiveModel = z.infer<typeof insertInteractiveModelSchema>;
+export type InteractiveModel = typeof interactiveModels.$inferSelect;
+
 // ============ LEGACY ZODS (for compatibility) ============
 
 // AI Tool Schema

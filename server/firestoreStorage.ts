@@ -6,7 +6,7 @@
 import admin from "firebase-admin";
 import { firestore, timestamp } from "./firebaseAdmin";
 import type { IStorage } from "./storage";
-import type { Tool, Article, User, Favorite, Review } from "@shared/schema";
+import type { Tool, Article, User, Favorite, Review, InteractiveModel } from "@shared/schema";
 
 // Import FieldValue for increment operations
 const FieldValue = admin.firestore.FieldValue;
@@ -425,6 +425,58 @@ export class FirestoreStorage implements IStorage {
     });
   }
 
+  // ============ INTERACTIVE MODELS ============
+
+  async getAllInteractiveModels(): Promise<InteractiveModel[]> {
+    const snapshot = await this.db.collection("interactive_models")
+      .where("isActive", "==", true)
+      .orderBy("createdAt", "desc")
+      .get();
+    return snapshot.docs.map(doc => this.mapInteractiveModel(doc.data()));
+  }
+
+  async getInteractiveModelById(id: number | string): Promise<InteractiveModel | null> {
+    const doc = await this.db.collection("interactive_models").doc(String(id)).get();
+    if (!doc.exists) return null;
+    return this.mapInteractiveModel(doc.data());
+  }
+
+  async createInteractiveModel(model: Omit<InteractiveModel, "id" | "createdAt" | "updatedAt">): Promise<InteractiveModel> {
+    // Get next ID
+    const modelsSnapshot = await this.db.collection("interactive_models").orderBy("id", "desc").limit(1).get();
+    const nextId = modelsSnapshot.empty ? 1 : (modelsSnapshot.docs[0].data().id + 1);
+
+    const now = timestamp.now();
+    const newModel = {
+      ...model,
+      id: nextId,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await this.db.collection("interactive_models").doc(String(nextId)).set(newModel);
+    return this.mapInteractiveModel(newModel);
+  }
+
+  async updateInteractiveModel(id: number, updates: Partial<InteractiveModel>): Promise<void> {
+    const now = timestamp.now();
+    await this.db.collection("interactive_models").doc(String(id)).update({
+      ...updates,
+      updatedAt: now,
+    });
+  }
+
+  async deleteInteractiveModel(id: number): Promise<void> {
+    await this.db.collection("interactive_models").doc(String(id)).delete();
+  }
+
+  async incrementModelUsage(id: number): Promise<void> {
+    const docRef = this.db.collection("interactive_models").doc(String(id));
+    await docRef.update({
+      usageCount: FieldValue.increment(1),
+    });
+  }
+
   // ============ HELPER MAPPERS ============
 
   private mapTool(data: any): Tool {
@@ -494,6 +546,23 @@ export class FirestoreStorage implements IStorage {
       rating: data.rating,
       comment: data.comment || "",
       createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+    };
+  }
+
+  private mapInteractiveModel(data: any): InteractiveModel {
+    return {
+      id: data.id,
+      name: data.name,
+      modelId: data.modelId,
+      category: data.category,
+      task: data.task,
+      description: data.description,
+      externalUrl: data.externalUrl,
+      usageCount: data.usageCount || 0,
+      isActive: data.isActive !== false,
+      featured: data.featured || false,
+      createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+      updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
     };
   }
 }
