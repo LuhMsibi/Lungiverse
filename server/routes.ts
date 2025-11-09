@@ -2,7 +2,7 @@ import type { Express} from "express";
 import { createServer, type Server } from "http";
 import { FirestoreStorage } from "./firestoreStorage";
 import { verifyFirebaseToken, requireAuth, requireAdmin, setAdminClaim, type AuthenticatedRequest } from "./firebaseAuth";
-import { chatRequestSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
+import { chatRequestSchema, insertInteractiveModelSchema, type Article, type Tool, type ArticleLegacy, type AITool } from "@shared/schema";
 
 // Initialize Firestore storage
 const storage = new FirestoreStorage();
@@ -70,30 +70,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // TEMPORARY ENDPOINT: Make yourself admin
-  // This endpoint allows any logged-in user to give themselves admin privileges
-  // SECURITY NOTE: Remove this endpoint in production! It's only for initial setup.
-  app.post('/api/auth/make-me-admin', requireAuth, async (req: AuthenticatedRequest, res) => {
-    try {
-      const userId = req.user!.uid;
-      const userEmail = req.user!.email;
-      
-      // Set custom admin claim on the Firebase token
-      await setAdminClaim(userId, true);
-      
-      console.log(`✅ Admin privileges granted to user: ${userEmail} (${userId})`);
-      
-      res.json({ 
-        success: true, 
-        message: "Admin privileges granted! Please sign out and sign back in for changes to take effect.",
-        requiresReAuth: true
-      });
-    } catch (error) {
-      console.error("Error granting admin privileges:", error);
-      res.status(500).json({ error: "Failed to grant admin privileges" });
     }
   });
   
@@ -580,22 +556,17 @@ Keep responses concise and actionable.`;
 
   app.post("/api/admin/interactive-models", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      const { name, description, category, huggingFaceModelId, externalUrl, isActive, isFeatured } = req.body;
+      // Validate request body with Zod
+      const validationResult = insertInteractiveModelSchema.safeParse(req.body);
       
-      if (!name || !description || !category || !huggingFaceModelId) {
-        return res.status(400).json({ error: "Missing required fields" });
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid request data",
+          details: validationResult.error.errors 
+        });
       }
 
-      const model = await storage.createInteractiveModel({
-        name,
-        description,
-        category,
-        huggingFaceModelId,
-        externalUrl,
-        isActive: isActive ?? true,
-        isFeatured: isFeatured ?? false,
-        usageCount: 0,
-      });
+      const model = await storage.createInteractiveModel(validationResult.data);
 
       res.json(model);
     } catch (error) {
@@ -606,18 +577,23 @@ Keep responses concise and actionable.`;
 
   app.put("/api/admin/interactive-models/:id", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      const id = req.params.id;
-      const { name, description, category, huggingFaceModelId, externalUrl, isActive, isFeatured } = req.body;
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid model ID" });
+      }
+      
+      // Validate request body with Zod (partial update allowed)
+      const validationResult = insertInteractiveModelSchema.partial().safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid request data",
+          details: validationResult.error.errors 
+        });
+      }
 
-      const model = await storage.updateInteractiveModel(id, {
-        name,
-        description,
-        category,
-        huggingFaceModelId,
-        externalUrl,
-        isActive,
-        isFeatured,
-      });
+      const model = await storage.updateInteractiveModel(id, validationResult.data);
 
       if (!model) {
         return res.status(404).json({ error: "Model not found" });
@@ -632,7 +608,12 @@ Keep responses concise and actionable.`;
 
   app.delete("/api/admin/interactive-models/:id", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {
-      const id = req.params.id;
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid model ID" });
+      }
+      
       await storage.deleteInteractiveModel(id);
       res.json({ success: true });
     } catch (error) {

@@ -8,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExternalLink, Sparkles, Loader2, Send } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { InteractiveModel } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PlaygroundPage() {
+  const { toast } = useToast();
   const [selectedModel, setSelectedModel] = useState<InteractiveModel | null>(null);
   const [userInput, setUserInput] = useState("");
   const [conversation, setConversation] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
@@ -42,6 +44,13 @@ export default function PlaygroundPage() {
         { role: "assistant", content: data.response },
       ]);
       setUserInput("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to generate response",
+        description: error.message || "An error occurred while generating the response. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -85,8 +94,20 @@ export default function PlaygroundPage() {
         </div>
       )}
 
+      {/* Empty State */}
+      {!isLoading && models.length === 0 && (
+        <Card className="max-w-2xl mx-auto" data-testid="empty-state">
+          <CardHeader>
+            <CardTitle className="text-center">No Models Available</CardTitle>
+            <CardDescription className="text-center">
+              There are no AI models available in the playground yet. Please check back later or contact an administrator.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
       {/* Models Grid */}
-      {!isLoading && (
+      {!isLoading && models.length > 0 && categories.length > 0 && (
         <Tabs defaultValue={categories[0]} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto mb-8" style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 4)}, 1fr)` }}>
             {categories.map((category) => (
