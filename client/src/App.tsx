@@ -13,6 +13,7 @@ import ToolDetailPage from "@/pages/ToolDetailPage";
 import ArticlesPage from "@/pages/ArticlesPage";
 import ArticleDetailPage from "@/pages/ArticleDetailPage";
 import AboutPage from "@/pages/AboutPage";
+import PlaygroundPage from "@/pages/PlaygroundPage";
 import Favorites from "@/pages/Favorites";
 import AdminPage from "@/pages/AdminPage";
 import AdminSeedPage from "@/pages/AdminSeedPage";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/articles" component={ArticlesPage} />
       <Route path="/article/:slug" component={ArticleDetailPage} />
       <Route path="/about" component={AboutPage} />
+      <Route path="/playground" component={PlaygroundPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/privacy" component={PrivacyPolicyPage} />
       <Route path="/terms" component={TermsOfServicePage} />

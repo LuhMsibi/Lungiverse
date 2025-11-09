@@ -49,6 +49,7 @@ export function Header() {
     { name: "Tools", href: "/tools" },
     { name: "Favorites", href: "/favorites", icon: Heart },
     { name: "Articles", href: "/articles" },
+    { name: "Playground", href: "/playground" },
     { name: "About", href: "/about" },
   ];
 
