@@ -370,6 +370,39 @@ const articlesData = [
   },
 ];
 
+const interactiveModelsData = [
+  {
+    name: "Llama 3.2 3B",
+    description: "Fast and efficient text generation model perfect for conversational AI, content creation, and creative writing. Excellent for everyday tasks.",
+    category: "Text AI",
+    huggingFaceModelId: "meta-llama/Llama-3.2-3B-Instruct",
+    externalUrl: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: "Mistral 7B",
+    description: "Powerful open-source language model optimized for chat and instruction following. Great for complex reasoning and detailed explanations.",
+    category: "Text AI",
+    huggingFaceModelId: "mistralai/Mistral-7B-Instruct-v0.3",
+    externalUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: "Qwen 2.5 7B",
+    description: "Advanced reasoning AI model with strong multilingual capabilities. Excellent for complex problem-solving, code generation, and analysis.",
+    category: "Text AI",
+    huggingFaceModelId: "Qwen/Qwen2.5-7B-Instruct",
+    externalUrl: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+];
+
 export async function seedFirestoreDatabase() {
   const storage = new FirestoreStorage();
   const db = firestore;
@@ -380,6 +413,8 @@ export async function seedFirestoreDatabase() {
   let toolsExisted = 0;
   let articlesCreated = 0;
   let articlesExisted = 0;
+  let modelsCreated = 0;
+  let modelsExisted = 0;
 
   // Seed tools
   console.log("📦 Seeding tools...");
@@ -429,6 +464,30 @@ export async function seedFirestoreDatabase() {
     }
   }
 
+  // Seed interactive models
+  console.log("🤖 Seeding interactive models...");
+  for (const modelData of interactiveModelsData) {
+    try {
+      // Check if model already exists
+      const existingModels = await db
+        .collection("interactive_models")
+        .where("name", "==", modelData.name)
+        .limit(1)
+        .get();
+
+      if (existingModels.empty) {
+        await storage.createInteractiveModel(modelData);
+        modelsCreated++;
+        console.log(`  ✅ Created model: ${modelData.name}`);
+      } else {
+        modelsExisted++;
+        console.log(`  ⏭️  Model already exists: ${modelData.name}`);
+      }
+    } catch (error) {
+      console.error(`  ❌ Error creating model ${modelData.name}:`, error);
+    }
+  }
+
   const result = {
     tools: {
       created: toolsCreated,
@@ -440,11 +499,17 @@ export async function seedFirestoreDatabase() {
       existed: articlesExisted,
       total: articlesData.length,
     },
+    interactiveModels: {
+      created: modelsCreated,
+      existed: modelsExisted,
+      total: interactiveModelsData.length,
+    },
   };
 
   console.log("✅ Firestore database seeding complete!");
   console.log(`   Tools: ${toolsCreated} new, ${toolsExisted} already existed`);
   console.log(`   Articles: ${articlesCreated} new, ${articlesExisted} already existed`);
+  console.log(`   Interactive Models: ${modelsCreated} new, ${modelsExisted} already existed`);
 
   return result;
 }

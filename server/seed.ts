@@ -610,6 +610,39 @@ export const articlesData = [
   },
 ];
 
+export const interactiveModelsData = [
+  {
+    name: "Llama 3.2 3B",
+    description: "Fast and efficient text generation model perfect for conversational AI, content creation, and creative writing. Excellent for everyday tasks.",
+    category: "Text AI",
+    huggingFaceModelId: "meta-llama/Llama-3.2-3B-Instruct",
+    externalUrl: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: "Mistral 7B",
+    description: "Powerful open-source language model optimized for chat and instruction following. Great for complex reasoning and detailed explanations.",
+    category: "Text AI",
+    huggingFaceModelId: "mistralai/Mistral-7B-Instruct-v0.3",
+    externalUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+  {
+    name: "Qwen 2.5 7B",
+    description: "Advanced reasoning AI model with strong multilingual capabilities. Excellent for complex problem-solving, code generation, and analysis.",
+    category: "Text AI",
+    huggingFaceModelId: "Qwen/Qwen2.5-7B-Instruct",
+    externalUrl: "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
+    usageCount: 0,
+    isActive: true,
+    isFeatured: true,
+  },
+];
+
 // Note: This file only exports data. Use seedData.ts for controlled seeding.
 // The seed() function below is kept for backwards compatibility but should not be used.
 
