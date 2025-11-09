@@ -206,6 +206,25 @@ export default function AdminPage() {
         <p className="text-muted-foreground">Add new tools and articles to Lungiverse</p>
       </div>
 
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Manage different aspects of Lungiverse</CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-4">
+          <Button variant="outline" asChild data-testid="button-manage-models">
+            <a href="/admin/interactive-models">
+              Manage Interactive Models
+            </a>
+          </Button>
+          <Button variant="outline" asChild data-testid="button-seed-database">
+            <a href="/admin/seed">
+              Seed Production Database
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="tools" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="tools" data-testid="tab-tools">Add Tool</TabsTrigger>

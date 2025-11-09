@@ -220,11 +220,10 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 export const interactiveModels = pgTable("interactive_models", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  modelId: varchar("model_id", { length: 500 }).notNull(), // Hugging Face model ID
+  huggingfaceModelId: varchar("huggingface_model_id", { length: 500 }).notNull(), // Hugging Face model ID
   category: varchar("category", { length: 50 }).notNull(),
-  task: varchar("task", { length: 100 }).notNull(), // e.g., "text-generation", "summarization"
   description: text("description").notNull(),
-  externalUrl: varchar("external_url", { length: 500 }).notNull(),
+  maxTokens: integer("max_tokens").notNull().default(1024),
   usageCount: integer("usage_count").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   featured: boolean("featured").notNull().default(false),
@@ -235,6 +234,8 @@ export const interactiveModels = pgTable("interactive_models", {
 export const insertInteractiveModelSchema = createInsertSchema(interactiveModels).omit({ 
   id: true, 
   usageCount: true,
+  isActive: true,
+  featured: true,
   createdAt: true, 
   updatedAt: true 
 });

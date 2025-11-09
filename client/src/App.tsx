@@ -17,6 +17,7 @@ import PlaygroundPage from "@/pages/PlaygroundPage";
 import Favorites from "@/pages/Favorites";
 import AdminPage from "@/pages/AdminPage";
 import AdminSeedPage from "@/pages/AdminSeedPage";
+import AdminInteractiveModelsPage from "@/pages/AdminInteractiveModelsPage";
 import MakeAdminPage from "@/pages/MakeAdminPage";
 import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/terms" component={TermsOfServicePage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin/seed" component={AdminSeedPage} />
+      <Route path="/admin/interactive-models" component={AdminInteractiveModelsPage} />
       <Route path="/setup-admin" component={MakeAdminPage} />
       <Route component={NotFound} />
     </Switch>
