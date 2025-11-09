@@ -435,8 +435,11 @@ export class FirestoreStorage implements IStorage {
       query = query.where("category", "==", category);
     }
 
-    const snapshot = await query.orderBy("createdAt", "desc").get();
-    return snapshot.docs.map(doc => this.mapInteractiveModel(doc.data()));
+    const snapshot = await query.get();
+    
+    // Sort in memory to avoid needing a composite index
+    const models = snapshot.docs.map(doc => this.mapInteractiveModel(doc.data()));
+    return models.sort((a, b) => b.id - a.id); // Sort by ID descending (newest first)
   }
 
   async getInteractiveModelById(id: number | string): Promise<InteractiveModel | null> {
