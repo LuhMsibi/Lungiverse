@@ -512,6 +512,135 @@ Keep responses concise and actionable.`;
     }
   });
 
+  // Interactive AI Models endpoints
+  app.get("/api/interactive-models", async (req, res) => {
+    try {
+      const category = req.query.category as string | undefined;
+      const models = await storage.getAllInteractiveModels(category);
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching interactive models:", error);
+      res.status(500).json({ error: "Failed to fetch interactive models" });
+    }
+  });
+
+  app.post("/api/interactive-models/infer", async (req, res) => {
+    try {
+      const { modelId, message } = req.body;
+      
+      if (!modelId || !message) {
+        return res.status(400).json({ error: "modelId and message are required" });
+      }
+
+      // Get model from database
+      const model = await storage.getInteractiveModelById(modelId);
+      if (!model) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      if (!model.isActive) {
+        return res.status(400).json({ error: "Model is not active" });
+      }
+
+      // Call Hugging Face API
+      const { generateChatCompletion } = await import("./huggingface");
+      const response = await generateChatCompletion(
+        model.huggingFaceModelId,
+        message,
+        undefined,
+        500
+      );
+
+      res.json({ 
+        response,
+        model: {
+          id: model.id,
+          name: model.name,
+        }
+      });
+    } catch (error) {
+      console.error("Error in interactive model inference:", error);
+      res.status(500).json({ 
+        error: "Failed to generate response",
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Admin endpoints for managing interactive models
+  app.get("/api/admin/interactive-models", requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const models = await storage.getAllInteractiveModels();
+      res.json(models);
+    } catch (error) {
+      console.error("Error fetching interactive models (admin):", error);
+      res.status(500).json({ error: "Failed to fetch interactive models" });
+    }
+  });
+
+  app.post("/api/admin/interactive-models", requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { name, description, category, huggingFaceModelId, externalUrl, isActive, isFeatured } = req.body;
+      
+      if (!name || !description || !category || !huggingFaceModelId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const model = await storage.createInteractiveModel({
+        name,
+        description,
+        category,
+        huggingFaceModelId,
+        externalUrl,
+        isActive: isActive ?? true,
+        isFeatured: isFeatured ?? false,
+        usageCount: 0,
+      });
+
+      res.json(model);
+    } catch (error) {
+      console.error("Error creating interactive model:", error);
+      res.status(500).json({ error: "Failed to create interactive model" });
+    }
+  });
+
+  app.put("/api/admin/interactive-models/:id", requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = req.params.id;
+      const { name, description, category, huggingFaceModelId, externalUrl, isActive, isFeatured } = req.body;
+
+      const model = await storage.updateInteractiveModel(id, {
+        name,
+        description,
+        category,
+        huggingFaceModelId,
+        externalUrl,
+        isActive,
+        isFeatured,
+      });
+
+      if (!model) {
+        return res.status(404).json({ error: "Model not found" });
+      }
+
+      res.json(model);
+    } catch (error) {
+      console.error("Error updating interactive model:", error);
+      res.status(500).json({ error: "Failed to update interactive model" });
+    }
+  });
+
+  app.delete("/api/admin/interactive-models/:id", requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteInteractiveModel(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting interactive model:", error);
+      res.status(500).json({ error: "Failed to delete interactive model" });
+    }
+  });
+
   // Contact form endpoint
   app.post("/api/contact", async (req, res) => {
     try {

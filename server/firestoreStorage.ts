@@ -427,11 +427,15 @@ export class FirestoreStorage implements IStorage {
 
   // ============ INTERACTIVE MODELS ============
 
-  async getAllInteractiveModels(): Promise<InteractiveModel[]> {
-    const snapshot = await this.db.collection("interactive_models")
-      .where("isActive", "==", true)
-      .orderBy("createdAt", "desc")
-      .get();
+  async getAllInteractiveModels(category?: string): Promise<InteractiveModel[]> {
+    let query: FirebaseFirestore.Query = this.db.collection("interactive_models")
+      .where("isActive", "==", true);
+
+    if (category) {
+      query = query.where("category", "==", category);
+    }
+
+    const snapshot = await query.orderBy("createdAt", "desc").get();
     return snapshot.docs.map(doc => this.mapInteractiveModel(doc.data()));
   }
 
@@ -458,16 +462,18 @@ export class FirestoreStorage implements IStorage {
     return this.mapInteractiveModel(newModel);
   }
 
-  async updateInteractiveModel(id: number, updates: Partial<InteractiveModel>): Promise<void> {
+  async updateInteractiveModel(id: string, updates: Partial<InteractiveModel>): Promise<InteractiveModel | null> {
     const now = timestamp.now();
-    await this.db.collection("interactive_models").doc(String(id)).update({
+    await this.db.collection("interactive_models").doc(id).update({
       ...updates,
       updatedAt: now,
     });
+    
+    return this.getInteractiveModelById(id);
   }
 
-  async deleteInteractiveModel(id: number): Promise<void> {
-    await this.db.collection("interactive_models").doc(String(id)).delete();
+  async deleteInteractiveModel(id: string): Promise<void> {
+    await this.db.collection("interactive_models").doc(id).delete();
   }
 
   async incrementModelUsage(id: number): Promise<void> {
@@ -553,14 +559,13 @@ export class FirestoreStorage implements IStorage {
     return {
       id: data.id,
       name: data.name,
-      modelId: data.modelId,
-      category: data.category,
-      task: data.task,
       description: data.description,
-      externalUrl: data.externalUrl,
+      category: data.category,
+      huggingFaceModelId: data.huggingFaceModelId,
+      externalUrl: data.externalUrl || "",
       usageCount: data.usageCount || 0,
       isActive: data.isActive !== false,
-      featured: data.featured || false,
+      isFeatured: data.isFeatured || false,
       createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
       updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
     };
