@@ -93,6 +93,7 @@ The production database does NOT automatically copy data from development. To ad
 - Individual article detail pages
 - About page
 - AI chatbot widget (floating button with modal interface)
+- **AI Playground** - Interactive page where users can chat with various Hugging Face models directly on the website
 
 ### Backend Architecture
 
@@ -115,6 +116,12 @@ The production database does NOT automatically copy data from development. To ad
 - `GET /api/articles` - Retrieve all articles from database
 - `GET /api/articles/:slug` - Get article by slug
 - `POST /api/chat` - AI chatbot conversation endpoint
+- `GET /api/interactive-models` - List all interactive AI models for Playground
+- `POST /api/interactive-models/infer` - Chat with Hugging Face models
+- `GET /api/admin/interactive-models` - Admin: List interactive models (requires admin)
+- `POST /api/admin/interactive-models` - Admin: Create new model (requires admin, Zod validated)
+- `PUT /api/admin/interactive-models/:id` - Admin: Update model (requires admin, Zod validated)
+- `DELETE /api/admin/interactive-models/:id` - Admin: Delete model (requires admin)
 
 **Data Storage Strategy:**
 - PostgreSQL database with Drizzle ORM for type-safe database operations
@@ -172,6 +179,58 @@ The production database does NOT automatically copy data from development. To ad
   timestamp: number
 }
 ```
+
+**Interactive Model Schema (AI Playground):**
+```typescript
+{
+  id: number
+  name: string
+  description: string
+  category: "Text AI" | "Image AI" | "Audio AI" | "Code AI"
+  huggingfaceModelId: string  // e.g., "meta-llama/Llama-3.2-3B-Instruct"
+  maxTokens: number           // Max response length (default: 500)
+  active: boolean             // Whether model is available to users
+  featured: boolean           // Whether to highlight in UI
+  usageCount: number          // Tracks popularity
+}
+```
+
+### AI Playground Feature
+
+The AI Playground is an interactive feature that allows users to chat directly with various Hugging Face language models on the website. This provides hands-on experience with different AI models without requiring users to sign up for separate API accounts.
+
+**Architecture:**
+- **Frontend:** `client/src/pages/PlaygroundPage.tsx` - Interactive chat interface with model selection
+- **Backend API:** Hugging Face Inference API (OpenAI-compatible chat completions endpoint)
+- **Admin Management:** `client/src/pages/AdminInteractiveModelsPage.tsx` - Full CRUD operations
+- **Storage:** Firestore `interactive_models` collection
+- **Seeded Models:** 3 free chat models (Llama 3.2 3B, Mistral 7B, Qwen 2.5 7B)
+
+**User Features:**
+- Browse models by category (Text AI, Image AI, Audio AI, Code AI)
+- View model details (name, description, usage stats)
+- Chat with models in a modal interface
+- See empty state when no models are available
+- Error handling with toast notifications
+
+**Admin Features:**
+- Add new Hugging Face models via admin panel
+- Update model details (name, description, category, maxTokens)
+- Toggle model active/featured status
+- Delete models from the platform
+- All operations protected by admin middleware and Zod validation
+
+**Security:**
+- Admin routes protected by `requireAdmin` middleware
+- Request validation using Zod schemas from `shared/schema.ts`
+- ID validation for UPDATE/DELETE operations
+- No privilege escalation endpoints (removed /api/auth/make-me-admin)
+
+**API Integration:**
+- Uses user's `HUGGINGFACE_API_KEY` environment variable (FREE tier available)
+- Endpoint: `https://router.huggingface.co/v1/chat/completions`
+- OpenAI-compatible format for easy integration
+- Free tier: Generous rate limits from Hugging Face
 
 ### Build and Deployment
 
