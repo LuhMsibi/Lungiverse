@@ -1,41 +1,71 @@
 /**
- * Hugging Face Inference API Integration
+ * Hugging Face Inference API Integration (2025 - Chat Completion)
  * Uses user's own free API key for AI model interactions
  * Get your free API key: https://huggingface.co/settings/tokens
+ * 
+ * New API uses OpenAI-compatible chat completion format
+ * Documentation: https://huggingface.co/docs/inference-providers
  */
 
-export interface HuggingFaceTextRequest {
-  inputs: string;
-  parameters?: {
-    max_new_tokens?: number;
-    temperature?: number;
-    top_p?: number;
-    do_sample?: boolean;
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+export interface HuggingFaceChatRequest {
+  model: string;
+  messages: ChatMessage[];
+  max_tokens?: number;
+  temperature?: number;
+  stream?: boolean;
+}
+
+export interface HuggingFaceChatResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
   };
 }
 
-export interface HuggingFaceTextResponse {
-  generated_text?: string;
-  label?: string;
-  score?: number;
-}
-
 /**
- * Call Hugging Face Inference API for text generation/processing
+ * Generate chat completion using Hugging Face Inference API
+ * Uses OpenAI-compatible format
  */
-export async function callHuggingFace(
+export async function generateChatCompletion(
   modelId: string,
-  inputs: string,
-  parameters?: Record<string, any>
-): Promise<any> {
+  userMessage: string,
+  systemPrompt?: string,
+  maxTokens = 500
+): Promise<string> {
   const apiKey = process.env.HUGGINGFACE_API_KEY;
   
   if (!apiKey) {
     throw new Error("HUGGINGFACE_API_KEY not configured");
   }
 
-  const apiUrl = `https://api-inference.huggingface.co/models/${modelId}`;
+  // New Hugging Face API endpoint (2025)
+  const apiUrl = "https://router.huggingface.co/v1/chat/completions";
   
+  // Build messages array
+  const messages: ChatMessage[] = [];
+  if (systemPrompt) {
+    messages.push({ role: "system", content: systemPrompt });
+  }
+  messages.push({ role: "user", content: userMessage });
+
   try {
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -44,8 +74,11 @@ export async function callHuggingFace(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        inputs,
-        parameters,
+        model: modelId,
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0.7,
+        stream: false,
       }),
     });
 
@@ -54,63 +87,15 @@ export async function callHuggingFace(
       throw new Error(`Hugging Face API error (${response.status}): ${errorText}`);
     }
 
-    const result = await response.json();
-    return result;
+    const result: HuggingFaceChatResponse = await response.json();
+    
+    if (result.choices && result.choices.length > 0) {
+      return result.choices[0].message.content;
+    }
+    
+    throw new Error("No response from Hugging Face API");
   } catch (error) {
     console.error("Hugging Face API error:", error);
     throw new Error(`Failed to call Hugging Face model: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
-}
-
-/**
- * Generate text using a language model
- */
-export async function generateText(modelId: string, prompt: string, maxTokens = 100): Promise<string> {
-  const result = await callHuggingFace(modelId, prompt, {
-    max_new_tokens: maxTokens,
-    temperature: 0.7,
-    do_sample: true,
-  });
-
-  if (Array.isArray(result) && result[0]?.generated_text) {
-    return result[0].generated_text;
-  }
-  
-  throw new Error("Unexpected response format from Hugging Face");
-}
-
-/**
- * Summarize text
- */
-export async function summarizeText(modelId: string, text: string): Promise<string> {
-  const result = await callHuggingFace(modelId, text, {
-    max_length: 150,
-    min_length: 30,
-  });
-
-  if (Array.isArray(result) && result[0]?.summary_text) {
-    return result[0].summary_text;
-  }
-  
-  throw new Error("Unexpected response format from Hugging Face");
-}
-
-/**
- * Analyze sentiment
- */
-export async function analyzeSentiment(modelId: string, text: string): Promise<{ label: string; score: number }> {
-  const result = await callHuggingFace(modelId, text);
-
-  if (Array.isArray(result) && result[0] && Array.isArray(result[0])) {
-    // Find the highest score
-    const topResult = result[0].reduce((prev: any, current: any) => 
-      (current.score > prev.score) ? current : prev
-    );
-    return {
-      label: topResult.label,
-      score: topResult.score,
-    };
-  }
-  
-  throw new Error("Unexpected response format from Hugging Face");
 }
