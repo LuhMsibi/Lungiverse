@@ -234,10 +234,11 @@ export const interactiveModels = pgTable("interactive_models", {
 export const insertInteractiveModelSchema = createInsertSchema(interactiveModels).omit({ 
   id: true, 
   usageCount: true,
-  isActive: true,
-  featured: true,
   createdAt: true, 
   updatedAt: true 
+}).extend({
+  isActive: z.boolean().default(true).optional(),
+  featured: z.boolean().default(false).optional(),
 });
 export type InsertInteractiveModel = z.infer<typeof insertInteractiveModelSchema>;
 export type InteractiveModel = typeof interactiveModels.$inferSelect;

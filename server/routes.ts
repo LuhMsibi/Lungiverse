@@ -521,7 +521,7 @@ Keep responses concise and actionable.`;
       // Call Hugging Face API
       const { generateChatCompletion } = await import("./huggingface");
       const response = await generateChatCompletion(
-        model.huggingFaceModelId,
+        model.huggingfaceModelId,
         message,
         undefined,
         500

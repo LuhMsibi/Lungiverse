@@ -457,6 +457,9 @@ export class FirestoreStorage implements IStorage {
     const newModel = {
       ...model,
       id: nextId,
+      isActive: model.isActive !== undefined ? model.isActive : true,  // Default to true
+      featured: model.featured || false,
+      usageCount: 0,
       createdAt: now,
       updatedAt: now,
     };
