@@ -489,6 +489,77 @@ export class FirestoreStorage implements IStorage {
     });
   }
 
+  // ============ NEWSLETTER SUBSCRIBERS ============
+
+  async subscribeToNewsletter(email: string): Promise<{ id: number; email: string; subscribedAt: Date }> {
+    // Check if email already exists
+    const existingSnapshot = await this.db.collection("newsletter_subscribers")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
+
+    if (!existingSnapshot.empty) {
+      const existing = existingSnapshot.docs[0].data();
+      // Reactivate if previously unsubscribed
+      if (!existing.isActive) {
+        await existingSnapshot.docs[0].ref.update({ isActive: true });
+      }
+      return {
+        id: existing.id,
+        email: existing.email,
+        subscribedAt: existing.subscribedAt?.toDate?.() || new Date(),
+      };
+    }
+
+    // Get next ID
+    const snapshot = await this.db.collection("newsletter_subscribers").orderBy("id", "desc").limit(1).get();
+    const nextId = snapshot.empty ? 1 : (snapshot.docs[0].data().id + 1);
+
+    const now = timestamp.now();
+    const newSubscriber = {
+      id: nextId,
+      email,
+      isActive: true,
+      subscribedAt: now,
+    };
+
+    await this.db.collection("newsletter_subscribers").doc(String(nextId)).set(newSubscriber);
+    
+    return {
+      id: nextId,
+      email,
+      subscribedAt: now.toDate(),
+    };
+  }
+
+  async unsubscribeFromNewsletter(email: string): Promise<void> {
+    const snapshot = await this.db.collection("newsletter_subscribers")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
+
+    if (!snapshot.empty) {
+      await snapshot.docs[0].ref.update({ isActive: false });
+    }
+  }
+
+  async getAllNewsletterSubscribers(): Promise<Array<{ id: number; email: string; isActive: boolean; subscribedAt: Date }>> {
+    const snapshot = await this.db.collection("newsletter_subscribers")
+      .where("isActive", "==", true)
+      .orderBy("subscribedAt", "desc")
+      .get();
+    
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: data.id,
+        email: data.email,
+        isActive: data.isActive,
+        subscribedAt: data.subscribedAt?.toDate?.() || new Date(),
+      };
+    });
+  }
+
   // ============ HELPER MAPPERS ============
 
   private mapTool(data: any): Tool {

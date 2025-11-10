@@ -216,6 +216,22 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 
+// Newsletter Subscribers Table
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  isActive: boolean("is_active").notNull().default(true),
+  subscribedAt: timestamp("subscribed_at").defaultNow().notNull(),
+});
+
+export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({ 
+  id: true, 
+  isActive: true,
+  subscribedAt: true 
+});
+export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
 // Interactive Models Table (Hugging Face AI models users can interact with)
 export const interactiveModels = pgTable("interactive_models", {
   id: serial("id").primaryKey(),

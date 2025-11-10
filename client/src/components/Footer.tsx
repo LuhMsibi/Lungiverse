@@ -3,20 +3,39 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import logoImage from "@assets/generated_images/Lungiverse_AI_platform_logo_8f2ec262.png";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
 
+  const subscribeMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const res = await apiRequest("/api/newsletter/subscribe", "POST", { email });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Subscribed!",
+        description: data.message || "Thank you for subscribing to our newsletter.",
+      });
+      setEmail("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Subscription failed",
+        description: error.message || "Failed to subscribe. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      toast({
-        title: "Subscribed!",
-        description: "Thank you for subscribing to our newsletter.",
-      });
-      setEmail("");
+      subscribeMutation.mutate(email);
     }
   };
 
@@ -140,8 +159,8 @@ export function Footer() {
                 required
                 data-testid="input-newsletter"
               />
-              <Button type="submit" className="w-full" data-testid="button-subscribe">
-                Subscribe
+              <Button type="submit" className="w-full" data-testid="button-subscribe" disabled={subscribeMutation.isPending}>
+                {subscribeMutation.isPending ? "Subscribing..." : "Subscribe"}
               </Button>
             </form>
           </div>

@@ -651,6 +651,68 @@ Keep responses concise and actionable.`;
     }
   });
 
+  // Newsletter endpoints
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email address" });
+      }
+
+      const subscriber = await storage.subscribeToNewsletter(email.toLowerCase().trim());
+      
+      res.json({ 
+        success: true, 
+        message: "Thank you for subscribing! You'll receive updates about the latest AI tools and insights.",
+        subscriber: {
+          email: subscriber.email,
+          subscribedAt: subscriber.subscribedAt,
+        }
+      });
+    } catch (error) {
+      console.error("Error subscribing to newsletter:", error);
+      res.status(500).json({ error: "Failed to subscribe. Please try again later." });
+    }
+  });
+
+  app.post("/api/newsletter/unsubscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      await storage.unsubscribeFromNewsletter(email.toLowerCase().trim());
+      
+      res.json({ 
+        success: true, 
+        message: "You have been unsubscribed from the newsletter."
+      });
+    } catch (error) {
+      console.error("Error unsubscribing from newsletter:", error);
+      res.status(500).json({ error: "Failed to unsubscribe. Please try again later." });
+    }
+  });
+
+  // Admin: View all newsletter subscribers
+  app.get("/api/admin/newsletter/subscribers", requireAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const subscribers = await storage.getAllNewsletterSubscribers();
+      res.json(subscribers);
+    } catch (error) {
+      console.error("Error fetching newsletter subscribers:", error);
+      res.status(500).json({ error: "Failed to fetch newsletter subscribers" });
+    }
+  });
+
   // Admin endpoints
   app.post("/api/admin/tools", requireAdmin, async (req: AuthenticatedRequest, res) => {
     try {

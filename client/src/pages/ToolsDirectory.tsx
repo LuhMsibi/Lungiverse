@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,11 +13,39 @@ import type { AITool, ToolCategory, SearchHistory } from "@shared/schema";
 import { toolCategories } from "@shared/schema";
 
 export default function ToolsDirectory() {
+  const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory>("All Tools");
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const { user } = useFirebaseAuth();
+
+  // Hydrate state from URL params whenever location changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get("search") || "";
+    const categoryParam = (urlParams.get("category") as ToolCategory) || "All Tools";
+    
+    setSearchQuery(searchParam);
+    setSelectedCategory(categoryParam);
+  }, [location]);
+
+  // Sync URL with state changes (but only from user input, not URL changes)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSearch = urlParams.get("search") || "";
+    const currentCategory = urlParams.get("category") || "All Tools";
+
+    // Only update URL if state differs from current URL params (user typed/selected)
+    if (searchQuery !== currentSearch || selectedCategory !== currentCategory) {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set("search", searchQuery);
+      if (selectedCategory !== "All Tools") params.set("category", selectedCategory);
+      const newSearch = params.toString();
+      const newUrl = `/tools${newSearch ? `?${newSearch}` : ""}`;
+      setLocation(newUrl, { replace: true });
+    }
+  }, [searchQuery, selectedCategory]);
 
   const { data: tools = [], isLoading } = useQuery<AITool[]>({
     queryKey: ["/api/tools"],
