@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { InteractiveModel } from "@shared/schema";
 import {
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function AdminInteractiveModelsPage() {
-  const { user, loading } = useFirebaseAuth();
+  const { user, loading, isAdmin } = useFirebaseAuth();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingModel, setEditingModel] = useState<InteractiveModel | null>(null);
@@ -46,26 +46,10 @@ export default function AdminInteractiveModelsPage() {
     queryKey: ["/api/interactive-models"],
   });
 
-  // Check if user is admin
-  const { data: adminCheck, isLoading: adminLoading } = useQuery<{ isAdmin: boolean }>({
-    queryKey: ["/api/admin/check"],
-    enabled: !!user,
-  });
-
-  const isAdmin = adminCheck?.isAdmin || false;
-
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const res = await fetch("/api/admin/interactive-models", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to create model");
-      }
+      const res = await apiRequest("/api/admin/interactive-models", "POST", data);
       return res.json();
     },
     onSuccess: () => {
@@ -89,15 +73,7 @@ export default function AdminInteractiveModelsPage() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: typeof formData }) => {
-      const res = await fetch(`/api/admin/interactive-models/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to update model");
-      }
+      const res = await apiRequest(`/api/admin/interactive-models/${id}`, "PUT", data);
       return res.json();
     },
     onSuccess: () => {
@@ -121,13 +97,7 @@ export default function AdminInteractiveModelsPage() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/interactive-models/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error || "Failed to delete model");
-      }
+      const res = await apiRequest(`/api/admin/interactive-models/${id}`, "DELETE");
       return res.json();
     },
     onSuccess: () => {
@@ -184,7 +154,7 @@ export default function AdminInteractiveModelsPage() {
     }
   };
 
-  if (loading || adminLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
